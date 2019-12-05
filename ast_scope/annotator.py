@@ -132,6 +132,10 @@ class AnnotateScope(ast.NodeVisitor):
         self.annotate_intermediate_scope(alias_node, variable)
         self.scope.modify(variable)
 
+    def visit_arg(self, arg):
+        self.annotate_intermediate_scope(arg, arg.arg)
+        self.scope.modify(arg.arg)
+
     def visit_FunctionDef(self, func_node):
         self.annotate_intermediate_scope(func_node, func_node.name)
         self.scope.modify(func_node.name)

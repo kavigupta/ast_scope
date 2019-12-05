@@ -6,6 +6,8 @@ from ast_scope.scope import GlobalScope, ErrorScope, FunctionScope, ClassScope
 def description_of_node(node):
     if type(node).__name__ == "Name":
         name = node.id
+    elif type(node).__name__ == "arg":
+        name = node.arg
     elif type(node).__name__ in ["FunctionDef", "AsyncFunctionDef"]:
         name = node.name
     else:

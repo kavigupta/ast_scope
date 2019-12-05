@@ -40,6 +40,11 @@ class PullScopes(ast.NodeVisitor):
         scope.add_variable(node)
         super().generic_visit(node)
 
+    def visit_arg(self, node):
+        scope = self.pull_scope(node)
+        scope.add_variable(node)
+        super().generic_visit(node)
+
     def visit_FunctionDef(self, node):
         scope = self.pull_scope(node)
         if node not in self.node_to_corresponding_scope:
