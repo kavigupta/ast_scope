@@ -1,7 +1,7 @@
 
 import ast
-from annotate_ast.annotate import annotate
-from annotate_ast.scope import GlobalScope, ErrorScope, FunctionScope, ClassScope
+from ast_scope.annotate import annotate
+from ast_scope.scope import GlobalScope, ErrorScope, FunctionScope, ClassScope
 
 def description_of_node(node):
     if type(node).__name__ == "Name":
