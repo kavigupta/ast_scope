@@ -1,62 +1,73 @@
 
-import unittest
+from .utils import DisplayAnnotatedTestCase
 
-from .utils import classify_all
-
-class GlobalFrameTest(unittest.TestCase):
+class GlobalFrameTest(DisplayAnnotatedTestCase):
     def test_global_var(self):
-        self.assertEqual(
-            classify_all("x = 2"),
-            {
-                'x@1:0' : 'global',
-            }
-        )
+        self.assertAnnotationWorks("{g}x = 2")
     def test_global_augassign(self):
-        self.assertEqual(
-            classify_all("x += 2"),
-            {
-                'x@1:0' : 'global',
-            }
-        )
+        self.assertAnnotationWorks("{g}x += 2")
     def test_multiline_global(self):
-        self.assertEqual(
-            classify_all("x = 1\ny = 2"),
-            {
-                'x@1:0' : 'global',
-                'y@2:0' : 'global',
-            }
+        self.assertAnnotationWorks(
+            "{g}x = 1\n{g}y = 2"
+        )
+    def test_lookups(self):
+        self.assertAnnotationWorks(
+            "{g}x = 1\n{g}y = {g}x"
         )
     def test_function(self):
-        self.assertEqual(
-            classify_all("def f(): pass"),
-            {
-                'f@1:0' : 'global',
-            }
+        self.assertAnnotationWorks(
+            "{g}def f(): pass"
         )
 
-
-no_parameter_function = """
-def f():
-    x = 2
-    y = 3
-""".strip()
-
-function_with_globals = """
-def f():
-    global x, y
-    x = 2
-    y = 3
-    z = 4
-""".strip()
-
-class FunctionFrameTest(unittest.TestCase):
+class FunctionFrameTest(DisplayAnnotatedTestCase):
     def test_no_parameter_function(self):
-        self.assertEqual(
-            classify_all(function_with_globals),
-            {
-                'f@1:0' : 'global',
-                'x@3:4' : 'global',
-                'y@4:4' : 'global',
-                'z@5:4' : 'function[f@1:0]',
-            }
+        self.assertAnnotationWorks(
+            """
+            {g}def f():
+                {~f@1:0}x = 2
+                {~f@1:0}y = 3
+            """
+        )
+    def test_global_statement(self):
+        self.assertAnnotationWorks(
+            """
+            {g}def f():
+                global x, y
+                {g}x = 2
+                {g}y = 3
+                {~f@1:0}z = 4
+            """
+        )
+    def test_inherits(self):
+        self.assertAnnotationWorks(
+            """
+            {g}x = {g}y = 2
+            {g}def f():
+                {~f@2:0}x = {~f@2:0}z = 3
+                return {~f@2:0}x + {g}y
+            """
+        )
+    def test_self_reference(self):
+        self.assertAnnotationWorks(
+            """
+            {g}def f():
+                {~f@1:0}x = 7
+                return {g}f, {~f@1:0}x
+            """
+        )
+    def test_parameters(self):
+        self.assertAnnotationWorks(
+            """
+            {g}def f({~f@1:0}x, {~f@1:0}y=2, *, {~f@1:0}z):
+                pass
+            """
+        )
+    def test_nested_function(self):
+        self.assertAnnotationWorks(
+            """
+            {g}def f({~f@1:0}x, {~f@1:0}y):
+                {~f@1:0}def g({~g@2:4}y, {~g@2:4}z):
+                    return {g}t + {~f@1:0}x + {~g@2:4}y + {~g@2:4}z
+            {g}t = {g}x = {g}y = {g}z = 1
+            """
         )
