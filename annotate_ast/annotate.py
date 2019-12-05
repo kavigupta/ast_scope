@@ -9,4 +9,4 @@ def annotate(tree):
 
     pull_scopes = PullScopes(annotation_dict)
     pull_scopes.visit(tree)
-    return pull_scopes.global_scope, pull_scopes.error_scope, pull_scopes.node_to_scope
+    return pull_scopes.global_scope, pull_scopes.error_scope, pull_scopes.node_to_containing_scope

@@ -6,7 +6,8 @@ from .annotator import IntermediateGlobalScope, IntermediateFunctionScope, Inter
 class PullScopes(ast.NodeVisitor):
     def __init__(self, annotation_dict):
         self.annotation_dict = annotation_dict
-        self.node_to_scope = {}
+        self.node_to_corresponding_scope = {}
+        self.node_to_containing_scope = {}
         self.global_scope = GlobalScope()
         self.error_scope = ErrorScope()
 
@@ -15,8 +16,8 @@ class PullScopes(ast.NodeVisitor):
             return self.error_scope
         if isinstance(int_scope, IntermediateGlobalScope):
             return self.global_scope
-        if int_scope.node in self.node_to_scope:
-            return self.node_to_scope[int_scope.node]
+        if int_scope.node in self.node_to_corresponding_scope:
+            return self.node_to_corresponding_scope[int_scope.node]
         if isinstance(int_scope, IntermediateFunctionScope):
             scope = FunctionScope(int_scope.node)
         elif isinstance(int_scope, IntermediateClassScope):
@@ -24,28 +25,33 @@ class PullScopes(ast.NodeVisitor):
         else:
             raise RuntimeError("unreachable")
 
-        self.node_to_scope[int_scope.node] = scope
+        self.node_to_corresponding_scope[int_scope.node] = scope
         return scope
 
     def pull_scope(self, node):
         name, intermediate_scope = self.annotation_dict[node]
         true_intermediate_scope = intermediate_scope.find(name)
-        return self.convert(true_intermediate_scope)
+        scope = self.convert(true_intermediate_scope)
+        self.node_to_containing_scope[node] = scope
+        return scope
 
     def visit_Name(self, node):
         scope = self.pull_scope(node)
         scope.add_variable(node)
+        super().generic_visit(node)
 
     def visit_FunctionDef(self, node):
         scope = self.pull_scope(node)
-        if node not in self.node_to_scope:
-            self.node_to_scope[node] = FunctionScope(node)
-        scope.add_function(node, self.node_to_scope[node])
+        if node not in self.node_to_corresponding_scope:
+            self.node_to_corresponding_scope[node] = FunctionScope(node)
+        scope.add_function(node, self.node_to_corresponding_scope[node])
+        super().generic_visit(node)
 
     visit_AsyncFunctionDef = visit_FunctionDef
 
     def visit_ClassDef(self, node):
         scope = self.pull_scope(node)
-        if node not in self.node_to_scope:
-            self.node_to_scope[node] = ClassScope(node)
-        scope.add_class(node, self.node_to_scope[node])
+        if node not in self.node_to_corresponding_scope:
+            self.node_to_corresponding_scope[node] = ClassScope(node)
+        scope.add_class(node, self.node_to_corresponding_scope[node])
+        super().generic_visit(node)
