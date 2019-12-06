@@ -116,18 +116,13 @@ class ProcessArguments(ast.NodeVisitor):
         self.arg_scope = arg_scope
 
     def visit_arg(self, node):
-        print(node.__dict__)
         self.arg_scope.visit(node)
-        print("X")
-        print(node.annotation, node.type_comment)
-
         visit_all(self.expr_scope, node.annotation, node.type_comment)
 
     def visit_arguments(self, node):
         super().generic_visit(node)
 
     def generic_visit(self, node):
-        print("expr:", node.__dict__)
         self.expr_scope.visit(node)
 
 class AnnotateScope(ast.NodeVisitor):
