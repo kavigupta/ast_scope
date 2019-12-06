@@ -3,10 +3,10 @@ import abc
 
 @attr.s
 class Variables:
-    variables = attr.ib(default=set())
-    functions = attr.ib(default=set())
-    classes = attr.ib(default=set())
-    import_statements = attr.ib(default=set())
+    variables = attr.ib(attr.Factory(set))
+    functions = attr.ib(attr.Factory(set))
+    classes = attr.ib(attr.Factory(set))
+    import_statements = attr.ib(attr.Factory(set))
 
 class Scope(abc.ABC):
     def add_variable(self, node):
@@ -21,20 +21,20 @@ class Scope(abc.ABC):
 
 @attr.s
 class ErrorScope(Scope):
-    variables = attr.ib(default=Variables())
+    variables = attr.ib(attr.Factory(Variables))
 
 @attr.s
 class GlobalScope(Scope):
-    variables = attr.ib(default=Variables())
-    children = attr.ib(default=list())
+    variables = attr.ib(attr.Factory(Variables))
+    children = attr.ib(attr.Factory(list))
 
 @attr.s
 class FunctionScope(Scope):
     function_node = attr.ib()
-    variables = attr.ib(default=Variables())
-    children = attr.ib(default=list())
+    variables = attr.ib(attr.Factory(Variables))
+    children = attr.ib(attr.Factory(list))
 
 @attr.s
 class ClassScope(Scope):
     class_node = attr.ib()
-    variables = attr.ib(default=Variables())
+    variables = attr.ib(attr.Factory(Variables))
