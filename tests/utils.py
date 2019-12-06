@@ -67,22 +67,31 @@ def trim(docstring):
     # Return a single string:
     return '\n'.join(trimmed)
 
+def all_nodes_gen_for_variables(variables):
+    yield from variables.variables
+    yield from variables.functions
+    yield from variables.classes
+    yield from variables.import_statements
+
 def all_nodes_gen_for_scope(scope):
     if hasattr(scope, 'children'):
         for child_scope in scope.children:
             yield from all_nodes_gen_for_scope(child_scope)
-    yield from scope.variables.variables
-    yield from scope.variables.functions
-    yield from scope.variables.classes
-    yield from scope.variables.import_statements
+    for node in all_nodes_gen_for_variables(scope.variables):
+        yield scope, node
 
 class DisplayAnnotatedTestCase(unittest.TestCase):
+    def _check_nodes(self, mapping, *scopes):
+        overall_scope = [item for scope in scopes for item in all_nodes_gen_for_scope(scope)]
+        for scope, node in overall_scope:
+            self.assertEqual(mapping[node], scope)
+        self.assertCountEqual([node for _, node in overall_scope], list(mapping))
+
     def assertAnnotationWorks(self, annotated_code):
         code = trim(re.sub(r"\{[^\}]+\}", "", annotated_code))
 
         global_scope, error_scope, mapping = annotate(ast.parse(code))
-        variables = list(all_nodes_gen_for_scope(global_scope)) + list(all_nodes_gen_for_scope(error_scope))
-        self.assertCountEqual(variables, list(mapping))
+        self._check_nodes(mapping, global_scope, error_scope)
 
         self.assertEqual(
             display_annotated(code),
