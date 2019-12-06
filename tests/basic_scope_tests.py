@@ -71,3 +71,19 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
             {g}t = {g}x = {g}y = {g}z = 1
             """
         )
+    def test_set_after_get(self):
+        self.assertAnnotationWorks(
+            """
+            {g}x = 1
+            {g}def f():
+                {~f@2:0}x
+                {~f@2:0}x = 2
+            """
+        )
+    def test_not_found_to_be_global(self):
+        self.assertAnnotationWorks(
+            """
+            {g}def f():
+                {g}x
+            """
+        )

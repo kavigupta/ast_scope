@@ -46,9 +46,7 @@ class IntermediateGlobalScope(IntermediateScope):
     def find(self, name, global_acceptable=True):
         if not global_acceptable:
             return None
-        if name in self.referenced_variables | self.written_variables:
-            return self
-        return None
+        return self
 
     def global_frame(self):
         return self
