@@ -110,6 +110,26 @@ class GrabVariable(ast.NodeVisitor):
     def visit_Param(self, _):
         self.scope.store(self.variable)
 
+class ProcessArguments(ast.NodeVisitor):
+    def __init__(self, expr_scope, arg_scope):
+        self.expr_scope = expr_scope
+        self.arg_scope = arg_scope
+
+    def visit_arg(self, node):
+        print(node.__dict__)
+        self.arg_scope.visit(node)
+        print("X")
+        print(node.annotation, node.type_comment)
+
+        visit_all(self.expr_scope, node.annotation, node.type_comment)
+
+    def visit_arguments(self, node):
+        super().generic_visit(node)
+
+    def generic_visit(self, node):
+        print("expr:", node.__dict__)
+        self.expr_scope.visit(node)
+
 class AnnotateScope(ast.NodeVisitor):
     def __init__(self, scope, annotation_dict):
         self.scope = scope
@@ -138,7 +158,9 @@ class AnnotateScope(ast.NodeVisitor):
         self.annotate_intermediate_scope(func_node, func_node.name)
         self.scope.modify(func_node.name)
         subscope = AnnotateScope(IntermediateFunctionScope(func_node, self.scope), self.annotation_dict)
-        ast.NodeVisitor.generic_visit(subscope, func_node)
+        visit_all(self, func_node.type_comment)
+        ProcessArguments(self, subscope).visit(func_node.args)
+        visit_all(subscope, func_node.body, func_node.decorator_list, func_node.returns)
 
     visit_AsyncFunctionDef = visit_FunctionDef
 
@@ -155,3 +177,12 @@ class AnnotateScope(ast.NodeVisitor):
     def visit_Nonlocal(self, nonlocal_node):
         for name in nonlocal_node.names:
             self.scope.nonlocalize(name)
+
+def visit_all(visitor, *nodes):
+    for node in nodes:
+        if node is None:
+            pass
+        elif isinstance(node, list):
+            visit_all(visitor, *node)
+        else:
+            visitor.visit(node)
