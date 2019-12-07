@@ -13,6 +13,8 @@ def get_name(node):
         name = node.arg
     elif type(node).__name__ in ["FunctionDef", "AsyncFunctionDef"]:
         name = node.name
+    elif type(node).__name__ in ["Lambda"]:
+        name = ""
     else:
         raise RuntimeError(f"Unsupported node type: {node}")
     return name
