@@ -43,6 +43,13 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 pass
             """
         )
+    def test_async_parameters(self):
+        self.assertAnnotationWorks(
+            """
+            {g}async def f({~f@1:0}x, {~f@1:0}y=2, *, {~f@1:0}z):
+                pass
+            """
+        )
     def test_nested_function(self):
         self.assertAnnotationWorks(
             """
