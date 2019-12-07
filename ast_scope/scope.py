@@ -11,8 +11,9 @@ class Variables:
 class Scope(abc.ABC):
     def add_variable(self, node):
         self.variables.variables.add(node)
-    def add_function(self, node, function_scope):
-        self.variables.functions.add(node)
+    def add_function(self, node, function_scope, include_as_variable):
+        if include_as_variable:
+            self.variables.functions.add(node)
         self.children.append(function_scope)
     def add_class(self, node, class_scope):
         self.variables.classes.add(node)

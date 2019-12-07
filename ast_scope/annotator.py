@@ -159,6 +159,12 @@ class AnnotateScope(ast.NodeVisitor):
 
     visit_AsyncFunctionDef = visit_FunctionDef
 
+    def visit_Lambda(self, func_node):
+        self.annotate_intermediate_scope(func_node, '<lambda>')
+        subscope = AnnotateScope(IntermediateFunctionScope(func_node, self.scope), self.annotation_dict)
+        ProcessArguments(self, subscope).visit(func_node.args)
+        visit_all(subscope, func_node.body)
+
     def visit_ClassDef(self, class_node):
         self.annotate_intermediate_scope(class_node, class_node.name)
         self.scope.modify(class_node.name)

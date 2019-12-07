@@ -28,11 +28,12 @@ class PullScopes(ast.NodeVisitor):
         self.node_to_corresponding_scope[int_scope.node] = scope
         return scope
 
-    def pull_scope(self, node):
+    def pull_scope(self, node, include_as_variable=True):
         name, intermediate_scope = self.annotation_dict[node]
         true_intermediate_scope = intermediate_scope.find(name)
         scope = self.convert(true_intermediate_scope)
-        self.node_to_containing_scope[node] = scope
+        if include_as_variable:
+            self.node_to_containing_scope[node] = scope
         return scope
 
     def visit_Name(self, node):
@@ -49,10 +50,17 @@ class PullScopes(ast.NodeVisitor):
         scope = self.pull_scope(node)
         if node not in self.node_to_corresponding_scope:
             self.node_to_corresponding_scope[node] = FunctionScope(node)
-        scope.add_function(node, self.node_to_corresponding_scope[node])
+        scope.add_function(node, self.node_to_corresponding_scope[node], include_as_variable=True)
         super().generic_visit(node)
 
     visit_AsyncFunctionDef = visit_FunctionDef
+
+    def visit_Lambda(self, node):
+        scope = self.pull_scope(node, include_as_variable=False)
+        if node not in self.node_to_corresponding_scope:
+            self.node_to_corresponding_scope[node] = FunctionScope(node)
+        scope.add_function(node, self.node_to_corresponding_scope[node], include_as_variable=False)
+        super().generic_visit(node)
 
     def visit_ClassDef(self, node):
         scope = self.pull_scope(node)
