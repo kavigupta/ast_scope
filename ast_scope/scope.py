@@ -9,6 +9,8 @@ class Variables:
     import_statements = attr.ib(attr.Factory(set))
 
 class Scope(abc.ABC):
+    def __init__(self):
+        self.variables = Variables()
     def add_variable(self, node):
         self.variables.variables.add(node)
     def add_child(self, scope):
@@ -22,22 +24,23 @@ class Scope(abc.ABC):
         self.add_child(class_scope)
 
 
-@attr.s
 class ErrorScope(Scope):
-    variables = attr.ib(attr.Factory(Variables))
+    pass
 
-@attr.s
-class GlobalScope(Scope):
-    variables = attr.ib(attr.Factory(Variables))
-    children = attr.ib(attr.Factory(list))
+class ScopeWithChildren(Scope, abc.ABC):
+    def __init__(self):
+        super().__init__()
+        self.children = []
 
-@attr.s
-class FunctionScope(Scope):
-    function_node = attr.ib()
-    variables = attr.ib(attr.Factory(Variables))
-    children = attr.ib(attr.Factory(list))
+class GlobalScope(ScopeWithChildren):
+    pass
 
-@attr.s
+class FunctionScope(ScopeWithChildren):
+    def __init__(self, function_node):
+        super().__init__()
+        self.function_node = function_node
+
 class ClassScope(Scope):
-    class_node = attr.ib()
-    variables = attr.ib(attr.Factory(Variables))
+    def __init__(self, class_node):
+        super().__init__()
+        self.class_node = class_node
