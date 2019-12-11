@@ -143,10 +143,7 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         GrabVariable(self.scope, name_node.id).generic_visit(name_node)
 
     def visit_alias(self, alias_node):
-        if alias_node.asname is not None:
-            variable = alias_node.asname
-        else:
-            variable = alias_node.name
+        variable = name_of_alias(alias_node)
         self.annotate_intermediate_scope(alias_node, variable)
         self.scope.modify(variable)
 
@@ -202,3 +199,8 @@ def visit_all(visitor, *nodes):
             visit_all(visitor, *node)
         else:
             visitor.visit(node)
+
+def name_of_alias(alias_node):
+    if alias_node.asname is not None:
+        return alias_node.asname
+    return alias_node.name

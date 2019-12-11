@@ -1,12 +1,20 @@
 import attr
 import abc
 
+from .annotator import name_of_alias
+
 @attr.s
 class Variables:
     variables = attr.ib(attr.Factory(set))
     functions = attr.ib(attr.Factory(set))
     classes = attr.ib(attr.Factory(set))
     import_statements = attr.ib(attr.Factory(set))
+    @property
+    def all_symbols(self):
+        var_names = {var.id for var in self.variables}
+        block_definitions = {var.name for var in self.functions | self.classes}
+        import_statements = {name_of_alias(var.name) for var in self.import_statements}
+        return var_names | block_definitions | import_statements
 
 class Scope(abc.ABC):
     def __init__(self):
@@ -23,6 +31,9 @@ class Scope(abc.ABC):
     def add_class(self, node, class_scope):
         self.variables.classes.add(node)
         self.add_child(class_scope)
+    @property
+    def symbols_in_frame(self):
+        return self.variables.all_symbols
 
 
 class ScopeWithChildren(Scope):
