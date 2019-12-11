@@ -55,4 +55,4 @@ class ClassScope(ScopeWithParent):
         super().__init__(parent)
         self.class_node = class_node
     def add_child(self, scope):
-        raise RuntimeError("Not yet implemented")
+        return self.parent.add_child(scope)
