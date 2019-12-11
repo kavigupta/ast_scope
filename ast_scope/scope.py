@@ -13,8 +13,9 @@ class Scope(abc.ABC):
         self.variables = Variables()
     def add_variable(self, node):
         self.variables.variables.add(node)
+    @abc.abstractmethod
     def add_child(self, scope):
-        self.children.append(scope)
+        pass
     def add_function(self, node, function_scope, include_as_variable):
         if include_as_variable:
             self.variables.functions.add(node)
@@ -25,12 +26,15 @@ class Scope(abc.ABC):
 
 
 class ErrorScope(Scope):
-    pass
+    def add_child(self, scope):
+        raise RuntimeError("Error Scope cannot have children")
 
-class ScopeWithChildren(Scope, abc.ABC):
+class ScopeWithChildren(Scope):
     def __init__(self):
         super().__init__()
         self.children = []
+    def add_child(self, scope):
+        self.children.append(scope)
 
 class GlobalScope(ScopeWithChildren):
     pass
@@ -44,3 +48,5 @@ class ClassScope(Scope):
     def __init__(self, class_node):
         super().__init__()
         self.class_node = class_node
+    def add_child(self, scope):
+        raise RuntimeError("Not yet implemented")
