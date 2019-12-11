@@ -2,8 +2,9 @@ import ast
 
 from .scope import GlobalScope, ErrorScope, FunctionScope, ClassScope
 from .annotator import IntermediateGlobalScope, IntermediateFunctionScope, IntermediateClassScope
+from .group_similar_constructs import GroupSimilarConstructsVisitor
 
-class PullScopes(ast.NodeVisitor):
+class PullScopes(GroupSimilarConstructsVisitor):
     def __init__(self, annotation_dict):
         self.annotation_dict = annotation_dict
         self.node_to_corresponding_scope = {}
@@ -46,14 +47,13 @@ class PullScopes(ast.NodeVisitor):
         scope.add_variable(node)
         super().generic_visit(node)
 
-    def visit_FunctionDef(self, node):
+    def visit_function_def(self, node, is_async):
+        del is_async
         scope = self.pull_scope(node)
         if node not in self.node_to_corresponding_scope:
             self.node_to_corresponding_scope[node] = FunctionScope(node)
         scope.add_function(node, self.node_to_corresponding_scope[node], include_as_variable=True)
         super().generic_visit(node)
-
-    visit_AsyncFunctionDef = visit_FunctionDef
 
     def visit_Lambda(self, node):
         scope = self.pull_scope(node, include_as_variable=False)

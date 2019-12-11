@@ -2,6 +2,8 @@
 import ast
 import abc
 
+from .group_similar_constructs import GroupSimilarConstructsVisitor
+
 class IntermediateScope(abc.ABC):
     """
     Represents a scope for the purposes of the annotator object. This isn't actually a scope but something from which
@@ -125,7 +127,7 @@ class ProcessArguments(ast.NodeVisitor):
     def generic_visit(self, node):
         self.expr_scope.visit(node)
 
-class AnnotateScope(ast.NodeVisitor):
+class AnnotateScope(GroupSimilarConstructsVisitor):
     def __init__(self, scope, annotation_dict):
         self.scope = scope
         self.annotation_dict = annotation_dict
@@ -149,15 +151,14 @@ class AnnotateScope(ast.NodeVisitor):
         self.annotate_intermediate_scope(arg, arg.arg)
         self.scope.modify(arg.arg)
 
-    def visit_FunctionDef(self, func_node):
+    def visit_function_def(self, func_node, is_async):
+        del is_async
         self.annotate_intermediate_scope(func_node, func_node.name)
         self.scope.modify(func_node.name)
         subscope = AnnotateScope(IntermediateFunctionScope(func_node, self.scope), self.annotation_dict)
         visit_all(self, getattr(func_node, 'type_comment', None))
         ProcessArguments(self, subscope).visit(func_node.args)
         visit_all(subscope, func_node.body, func_node.decorator_list, func_node.returns)
-
-    visit_AsyncFunctionDef = visit_FunctionDef
 
     def visit_Lambda(self, func_node):
         self.annotate_intermediate_scope(func_node, '<lambda>')
