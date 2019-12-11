@@ -43,7 +43,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 pass
             """
         )
-    @from_version(3, 8)
+    @from_version(3, 7)
     def test_async_parameters_new(self):
         self.assertAnnotationWorks(
             """
@@ -51,7 +51,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 pass
             """
         )
-    @pre_version(3, 8)
+    @pre_version(3, 7)
     def test_async_parameters_old(self):
         self.assertAnnotationWorks(
             """
