@@ -8,21 +8,25 @@ from ast_scope.annotate import annotate
 from ast_scope.scope import GlobalScope, ErrorScope, FunctionScope, ClassScope
 
 def get_name(node):
+    pos_info_node = node
     if type(node).__name__ == "Name":
         name = node.id
     elif type(node).__name__ == "arg":
         name = node.arg
     elif type(node).__name__ in ["FunctionDef", "AsyncFunctionDef"]:
         name = node.name
-    elif type(node).__name__ in ["Lambda"]:
+    elif type(node).__name__ == "Lambda":
         name = ""
+    elif type(node).__name__ == "comprehension":
+        name = ""
+        pos_info_node = node.target
     else:
         raise RuntimeError("Unsupported node type: {node}".format(node=node))
-    return name
+    return name, pos_info_node
 
 def description_of_node(node):
-    name = get_name(node)
-    return "{name}@{lineno}:{col_offset}".format(name=name, lineno=node.lineno, col_offset=node.col_offset)
+    name, pos = get_name(node)
+    return "{name}@{lineno}:{col_offset}".format(name=name, lineno=pos.lineno, col_offset=pos.col_offset)
 
 def description_of_scope(scope):
     if isinstance(scope, GlobalScope):
@@ -90,8 +94,9 @@ class DisplayAnnotatedTestCase(unittest.TestCase):
             self.assertEqual(mapping[node], scope)
         self.assertCountEqual([node for _, node in overall_scope], list(mapping))
 
-    def assertAnnotationWorks(self, annotated_code):
-        code = trim(re.sub(r"\{[^\}]+\}", "", annotated_code))
+    def assertAnnotationWorks(self, annotated_code, code=None):
+        if code is None:
+            code = trim(re.sub(r"\{[^\}]+\}", "", annotated_code))
 
         global_scope, error_scope, mapping = annotate(ast.parse(code))
         self._check_nodes(mapping, global_scope, error_scope)

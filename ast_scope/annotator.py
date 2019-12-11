@@ -166,6 +166,17 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         ProcessArguments(self, subscope).visit(func_node.args)
         visit_all(subscope, func_node.body)
 
+    def visit_comprehension_generic(self, targets, comprehensions, typ):
+        del typ
+        current_scope = self
+        for comprehension in comprehensions:
+            self.annotate_intermediate_scope(comprehension, '<comp>')
+            subscope = AnnotateScope(IntermediateFunctionScope(comprehension, current_scope.scope), self.annotation_dict)
+            visit_all(current_scope, comprehension.iter)
+            visit_all(subscope, comprehension.target, comprehension.ifs)
+            current_scope = subscope
+        visit_all(current_scope, targets)
+
     def visit_ClassDef(self, class_node):
         self.annotate_intermediate_scope(class_node, class_node.name)
         self.scope.modify(class_node.name)
