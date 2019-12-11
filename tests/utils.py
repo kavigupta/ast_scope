@@ -1,8 +1,8 @@
 
-import unittest
+import sys
 import ast
 import re
-import sys
+import unittest
 
 from ast_scope.annotate import annotate
 from ast_scope.scope import GlobalScope, ErrorScope, FunctionScope, ClassScope
