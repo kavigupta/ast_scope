@@ -25,28 +25,34 @@ class Scope(abc.ABC):
         self.add_child(class_scope)
 
 
-class ErrorScope(Scope):
-    def add_child(self, scope):
-        raise RuntimeError("Error Scope cannot have children")
-
 class ScopeWithChildren(Scope):
     def __init__(self):
-        super().__init__()
+        Scope.__init__(self)
         self.children = []
     def add_child(self, scope):
         self.children.append(scope)
 
+class ScopeWithParent(Scope):
+    def __init__(self, parent):
+        super().__init__()
+        self.parent = parent
+
+class ErrorScope(Scope):
+    def add_child(self, scope):
+        raise RuntimeError("Error Scope cannot have children")
+
 class GlobalScope(ScopeWithChildren):
     pass
 
-class FunctionScope(ScopeWithChildren):
-    def __init__(self, function_node):
-        super().__init__()
+class FunctionScope(ScopeWithChildren, ScopeWithParent):
+    def __init__(self, function_node, parent):
+        ScopeWithChildren.__init__(self)
+        ScopeWithParent.__init__(self, parent)
         self.function_node = function_node
 
-class ClassScope(Scope):
-    def __init__(self, class_node):
-        super().__init__()
+class ClassScope(ScopeWithParent):
+    def __init__(self, class_node, parent):
+        super().__init__(parent)
         self.class_node = class_node
     def add_child(self, scope):
         raise RuntimeError("Not yet implemented")

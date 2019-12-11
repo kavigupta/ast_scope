@@ -41,14 +41,14 @@ class PullScopes(GroupSimilarConstructsVisitor):
         del is_async
         scope = self.pull_scope(node)
         if node not in self.node_to_corresponding_scope:
-            self.node_to_corresponding_scope[node] = FunctionScope(node)
+            self.node_to_corresponding_scope[node] = FunctionScope(node, scope)
         scope.add_function(node, self.node_to_corresponding_scope[node], include_as_variable=True)
         super().generic_visit(node)
 
     def visit_Lambda(self, node):
         scope = self.pull_scope(node, include_as_variable=False)
         if node not in self.node_to_corresponding_scope:
-            self.node_to_corresponding_scope[node] = FunctionScope(node)
+            self.node_to_corresponding_scope[node] = FunctionScope(node, scope)
         scope.add_function(node, self.node_to_corresponding_scope[node], include_as_variable=False)
         super().generic_visit(node)
 
@@ -60,13 +60,13 @@ class PullScopes(GroupSimilarConstructsVisitor):
     def visit_comprehension(self, node):
         scope = self.pull_scope(node, include_as_variable=False)
         if node not in self.node_to_corresponding_scope:
-            self.node_to_corresponding_scope[node] = FunctionScope(node)
+            self.node_to_corresponding_scope[node] = FunctionScope(node, scope)
         scope.add_function(node, self.node_to_corresponding_scope[node], include_as_variable=False)
         super().generic_visit(node)
 
     def visit_ClassDef(self, node):
         scope = self.pull_scope(node)
         if node not in self.node_to_corresponding_scope:
-            self.node_to_corresponding_scope[node] = ClassScope(node)
+            self.node_to_corresponding_scope[node] = ClassScope(node, scope)
         scope.add_class(node, self.node_to_corresponding_scope[node])
         super().generic_visit(node)
