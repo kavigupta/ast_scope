@@ -79,6 +79,9 @@ class IntermediateClassScope(IntermediateScope):
         self.parent = parent
     def global_frame(self):
         return self.true_parent().find(self)
+    def find(self, name, global_acceptable=True):
+        # anything can be in a class frame
+        return self
 
 class GrabVariable(ast.NodeVisitor):
     """

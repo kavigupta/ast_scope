@@ -15,6 +15,8 @@ def get_name(node):
         name = node.arg
     elif type(node).__name__ in ["FunctionDef", "AsyncFunctionDef"]:
         name = node.name
+    elif type(node).__name__ == "ClassDef":
+        name = node.name
     elif type(node).__name__ == "Lambda":
         name = ""
     elif type(node).__name__ == "comprehension":
@@ -36,7 +38,7 @@ def description_of_scope(scope):
     if isinstance(scope, FunctionScope):
         return '~' + description_of_node(scope.function_node)
     if isinstance(scope, ClassScope):
-        return '-' + description_of_node(scope.class_scope)
+        return '-' + description_of_node(scope.class_node)
     raise RuntimeError("Unsupported node type: {scope}".format(scope=scope))
 
 def display_annotated(code):
