@@ -11,13 +11,15 @@ class Variables:
 class Scope(abc.ABC):
     def add_variable(self, node):
         self.variables.variables.add(node)
+    def add_child(self, scope):
+        self.children.append(scope)
     def add_function(self, node, function_scope, include_as_variable):
         if include_as_variable:
             self.variables.functions.add(node)
-        self.children.append(function_scope)
+        self.add_child(function_scope)
     def add_class(self, node, class_scope):
         self.variables.classes.add(node)
-        self.children.append(class_scope)
+        self.add_child(class_scope)
 
 
 @attr.s
