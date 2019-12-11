@@ -8,6 +8,13 @@ class EqualityAssignmentTests(DisplayAnnotatedTestCase):
                 {~f@1:0}x = 2
             """
         )
+    def test_underscore(self):
+        self.assertAnnotationWorks(
+            """
+            {g}def f():
+                {~f@1:0}_ = 2
+            """
+        )
     def test_element_assignment(self):
         self.assertAnnotationWorks(
             """
