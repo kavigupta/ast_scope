@@ -17,12 +17,12 @@ def get_name(node):
     elif type(node).__name__ in ["Lambda"]:
         name = ""
     else:
-        raise RuntimeError(f"Unsupported node type: {node}")
+        raise RuntimeError("Unsupported node type: {node}".format(node=node))
     return name
 
 def description_of_node(node):
     name = get_name(node)
-    return f"{name}@{node.lineno}:{node.col_offset}"
+    return "{name}@{lineno}:{col_offset}".format(name=name, lineno=node.lineno, col_offset=node.col_offset)
 
 def description_of_scope(scope):
     if isinstance(scope, GlobalScope):
@@ -30,10 +30,10 @@ def description_of_scope(scope):
     if isinstance(scope, ErrorScope):
         return '?'
     if isinstance(scope, FunctionScope):
-        return f'~{description_of_node(scope.function_node)}'
+        return '~' + description_of_node(scope.function_node)
     if isinstance(scope, ClassScope):
-        return f'-{description_of_node(scope.class_scope)}'
-    raise RuntimeError(f"Unsupported node type: {scope}")
+        return '-' + description_of_node(scope.class_scope)
+    raise RuntimeError("Unsupported node type: {scope}".format(scope=scope))
 
 def display_annotated(code):
     lines = [list(x) for x in code.split("\n")]
