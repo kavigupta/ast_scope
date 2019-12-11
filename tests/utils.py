@@ -2,6 +2,7 @@
 import unittest
 import ast
 import re
+import sys
 
 from ast_scope.annotate import annotate
 from ast_scope.scope import GlobalScope, ErrorScope, FunctionScope, ClassScope
@@ -99,3 +100,16 @@ class DisplayAnnotatedTestCase(unittest.TestCase):
             display_annotated(code),
             trim(annotated_code)
         )
+def create_condiitional_version(predicate):
+    def conditional_version(*version):
+        def decorator(original_test):
+            def test(*args, **kwargs):
+                if predicate(version):
+                    original_test(*args, **kwargs)
+            test.__name__ = original_test.__name__
+            return test
+        return decorator
+    return conditional_version
+
+from_version = create_condiitional_version(lambda version: sys.version_info >= version)
+pre_version = create_condiitional_version(lambda version: sys.version_info < version)

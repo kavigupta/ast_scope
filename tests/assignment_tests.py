@@ -1,4 +1,4 @@
-from .utils import DisplayAnnotatedTestCase
+from .utils import DisplayAnnotatedTestCase, from_version
 
 class EqualityAssignmentTests(DisplayAnnotatedTestCase):
     def test_basic_assignment(self):
@@ -29,6 +29,7 @@ class EqualityAssignmentTests(DisplayAnnotatedTestCase):
                 {~f@1:0}x, {~f@1:0}y = 1, 2
             """
         )
+    @from_version(3, 8)
     def test_special_assigment(self):
         self.assertAnnotationWorks(
             """

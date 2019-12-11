@@ -117,7 +117,7 @@ class ProcessArguments(ast.NodeVisitor):
 
     def visit_arg(self, node):
         self.arg_scope.visit(node)
-        visit_all(self.expr_scope, node.annotation, node.type_comment)
+        visit_all(self.expr_scope, node.annotation, getattr(node, 'type_comment', None))
 
     def visit_arguments(self, node):
         super().generic_visit(node)
@@ -153,7 +153,7 @@ class AnnotateScope(ast.NodeVisitor):
         self.annotate_intermediate_scope(func_node, func_node.name)
         self.scope.modify(func_node.name)
         subscope = AnnotateScope(IntermediateFunctionScope(func_node, self.scope), self.annotation_dict)
-        visit_all(self, func_node.type_comment)
+        visit_all(self, getattr(func_node, 'type_comment', None))
         ProcessArguments(self, subscope).visit(func_node.args)
         visit_all(subscope, func_node.body, func_node.decorator_list, func_node.returns)
 

@@ -1,4 +1,4 @@
-from .utils import DisplayAnnotatedTestCase
+from .utils import DisplayAnnotatedTestCase, from_version, pre_version
 
 class FunctionFrameTest(DisplayAnnotatedTestCase):
     def test_no_parameter_function(self):
@@ -43,10 +43,19 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 pass
             """
         )
-    def test_async_parameters(self):
+    @from_version(3, 8)
+    def test_async_parameters_new(self):
         self.assertAnnotationWorks(
             """
             {g}async def f({~f@1:0}x, {~f@1:0}y=2, *, {~f@1:0}z):
+                pass
+            """
+        )
+    @pre_version(3, 8)
+    def test_async_parameters_old(self):
+        self.assertAnnotationWorks(
+            """
+            async {g}def f({~f@1:6}x, {~f@1:6}y=2, *, {~f@1:6}z):
                 pass
             """
         )

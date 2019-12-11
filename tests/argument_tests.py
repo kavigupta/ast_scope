@@ -1,5 +1,5 @@
 
-from .utils import DisplayAnnotatedTestCase
+from .utils import DisplayAnnotatedTestCase, from_version
 
 class DifferentArgumentTypes(DisplayAnnotatedTestCase):
     def test_multiple_arguments(self):
@@ -16,6 +16,7 @@ class DifferentArgumentTypes(DisplayAnnotatedTestCase):
                 pass
             """
         )
+    @from_version(3, 8)
     def test_positional_only_arguments(self):
         self.assertAnnotationWorks(
             """
