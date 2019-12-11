@@ -32,7 +32,7 @@ class ScopeWithChildren(Scope):
     def add_child(self, scope):
         self.children.append(scope)
 
-class ScopeWithParent(Scope):
+class ScopeWithParent(Scope, abc.ABC):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
