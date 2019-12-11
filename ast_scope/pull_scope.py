@@ -17,17 +17,7 @@ class PullScopes(GroupSimilarConstructsVisitor):
             return self.error_scope
         if isinstance(int_scope, IntermediateGlobalScope):
             return self.global_scope
-        if int_scope.node in self.node_to_corresponding_scope:
-            return self.node_to_corresponding_scope[int_scope.node]
-        if isinstance(int_scope, IntermediateFunctionScope):
-            scope = FunctionScope(int_scope.node)
-        elif isinstance(int_scope, IntermediateClassScope):
-            scope = ClassScope(scope.node)
-        else:
-            raise RuntimeError("unreachable")
-
-        self.node_to_corresponding_scope[int_scope.node] = scope
-        return scope
+        return self.node_to_corresponding_scope[int_scope.node]
 
     def pull_scope(self, node, include_as_variable=True):
         name, intermediate_scope = self.annotation_dict[node]
