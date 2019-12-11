@@ -1,7 +1,7 @@
 import ast
 
 from .scope import GlobalScope, ErrorScope, FunctionScope, ClassScope
-from .annotator import IntermediateGlobalScope, IntermediateFunctionScope, IntermediateClassScope
+from .annotator import IntermediateGlobalScope, IntermediateFunctionScope, IntermediateClassScope, visit_all
 from .group_similar_constructs import GroupSimilarConstructsVisitor
 
 class PullScopes(GroupSimilarConstructsVisitor):
@@ -61,6 +61,11 @@ class PullScopes(GroupSimilarConstructsVisitor):
             self.node_to_corresponding_scope[node] = FunctionScope(node)
         scope.add_function(node, self.node_to_corresponding_scope[node], include_as_variable=False)
         super().generic_visit(node)
+
+    def visit_comprehension_generic(self, targets, comprehensions, node):
+        # mate sure to visit the comprehensions first
+        visit_all(self, comprehensions)
+        visit_all(self, targets)
 
     def visit_comprehension(self, node):
         scope = self.pull_scope(node, include_as_variable=False)
