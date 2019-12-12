@@ -2,3 +2,5 @@
 .ipynb_checkpoints
 env
 *.swp
+*.egg-info
+dist
