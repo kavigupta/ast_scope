@@ -156,9 +156,9 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         self.annotate_intermediate_scope(func_node, func_node.name)
         self.scope.modify(func_node.name)
         subscope = AnnotateScope(IntermediateFunctionScope(func_node, self.scope), self.annotation_dict)
-        visit_all(self, getattr(func_node, 'type_comment', None))
+        visit_all(self, getattr(func_node, 'type_comment', None), func_node.decorator_list)
         ProcessArguments(self, subscope).visit(func_node.args)
-        visit_all(subscope, func_node.body, func_node.decorator_list, func_node.returns)
+        visit_all(subscope, func_node.body, func_node.returns)
 
     def visit_Lambda(self, func_node):
         self.annotate_intermediate_scope(func_node, '<lambda>')

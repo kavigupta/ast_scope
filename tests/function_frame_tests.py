@@ -84,3 +84,13 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 {g}x
             """
         )
+    def test_decorator_top_level(self):
+        self.assertAnnotationWorks(
+            """
+            {g}@{g}x
+            def f({~f@1:0}x):
+                {~f@1:0}@{~f@1:0}x
+                def g({~g@3:4}x):
+                    pass
+            """
+        )
