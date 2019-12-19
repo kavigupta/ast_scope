@@ -1,6 +1,6 @@
 from .utils import DisplayAnnotatedTestCase
 
-class FunctionFrameTest(DisplayAnnotatedTestCase):
+class ClassTests(DisplayAnnotatedTestCase):
     def test_class(self):
         self.assertAnnotationWorks(
             """
