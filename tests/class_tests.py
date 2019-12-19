@@ -39,6 +39,13 @@ class TestClassDefault(DisplayAnnotatedTestCase):
             {g}y = 3
             """
         )
+    def test_functions_defined_locally(self):
+        self.assertAnnotationWorks(
+            """
+            {g}class X:
+                {-X@1:0}def f(): pass
+            """
+        )
 
 class ClassTestsClassBindsNear(DisplayAnnotatedTestCase):
     def assertAnnotationWorks(self, *args, **kwargs):
