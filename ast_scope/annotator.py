@@ -126,9 +126,6 @@ class GrabVariable(ast.NodeVisitor):
     def visit_AugStore(self, _):
         raise RuntimeError("Unsupported: AugStore")
 
-    def visit_Param(self, _):
-        self.scope.store(self.variable)
-
 class ProcessArguments(ast.NodeVisitor):
     def __init__(self, expr_scope, arg_scope):
         self.expr_scope = expr_scope
