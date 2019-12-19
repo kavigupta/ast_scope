@@ -46,6 +46,8 @@ def display_annotated(code, class_binds_near):
     tree = ast.parse(code)
     mapping = annotate(tree, class_binds_near)._node_to_containing_scope
     for node, scope in mapping.items():
+        if not hasattr(node, "lineno"):
+            continue
         scope_description = description_of_scope(scope)
         lines[node.lineno-1][node.col_offset] = "{" + scope_description + "}" + lines[node.lineno-1][node.col_offset]
     return "\n".join("".join(x) for x in lines)
@@ -101,12 +103,20 @@ class DisplayAnnotatedTestCase(unittest.TestCase):
             code = trim(re.sub(r"\{[^\}]+\}", "", annotated_code))
 
         scope_info = annotate(ast.parse(code), class_binds_near)
+        scope_info.static_dependency_graph # just check for errors
         self._check_nodes(scope_info._node_to_containing_scope, scope_info._global_scope, scope_info._error_scope)
 
         self.assertEqual(
             display_annotated(code, class_binds_near),
             trim(annotated_code)
         )
+
+    def assertGraphWorks(self, code, vertices, edges):
+        graph = annotate(ast.parse(trim(code))).static_dependency_graph
+        self.assertCountEqual(graph.nodes(), vertices)
+        self.assertCountEqual(graph.edges(), edges)
+
+
 def create_condiitional_version(predicate):
     def conditional_version(*version):
         def decorator(original_test):
