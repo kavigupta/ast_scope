@@ -92,3 +92,15 @@ class TestClassDefault(DisplayAnnotatedTestCase):
             vertices=["X", "g", "h"],
             edges=[("X", "h"), ("g", "X")]
         )
+    def testReferenceToImport(self):
+        self.assertGraphWorks(
+            """
+            import os
+            def g(x):
+                return X.f(3)
+            def h(x):
+                return os.system("rm -r hi")
+            """,
+            vertices=["os", "g", "h", "X"],
+            edges=[("g", "X"), ("h", "os")]
+        )
