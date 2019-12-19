@@ -41,10 +41,10 @@ def description_of_scope(scope):
         return '-' + description_of_node(scope.class_node)
     raise RuntimeError("Unsupported node type: {scope}".format(scope=scope))
 
-def display_annotated(code):
+def display_annotated(code, class_binds_near):
     lines = [list(x) for x in code.split("\n")]
     tree = ast.parse(code)
-    mapping = annotate(tree)._node_to_containing_scope
+    mapping = annotate(tree, class_binds_near)._node_to_containing_scope
     for node, scope in mapping.items():
         scope_description = description_of_scope(scope)
         lines[node.lineno-1][node.col_offset] = "{" + scope_description + "}" + lines[node.lineno-1][node.col_offset]
@@ -96,15 +96,15 @@ class DisplayAnnotatedTestCase(unittest.TestCase):
             self.assertEqual(mapping[node], scope)
         self.assertCountEqual([node for _, node in overall_scope], list(mapping))
 
-    def assertAnnotationWorks(self, annotated_code, code=None):
+    def assertAnnotationWorks(self, annotated_code, code=None, *, class_binds_near=False):
         if code is None:
             code = trim(re.sub(r"\{[^\}]+\}", "", annotated_code))
 
-        scope_info = annotate(ast.parse(code))
+        scope_info = annotate(ast.parse(code), class_binds_near)
         self._check_nodes(scope_info._node_to_containing_scope, scope_info._global_scope, scope_info._error_scope)
 
         self.assertEqual(
-            display_annotated(code),
+            display_annotated(code, class_binds_near),
             trim(annotated_code)
         )
 def create_condiitional_version(predicate):

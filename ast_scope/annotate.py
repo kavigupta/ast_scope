@@ -12,9 +12,9 @@ class ScopeInfo:
     def global_scope(self):
         return self._global_scope
 
-def annotate(tree):
+def annotate(tree, class_binds_near=False):
     annotation_dict = {}
-    annotator = AnnotateScope(IntermediateGlobalScope(), annotation_dict)
+    annotator = AnnotateScope(IntermediateGlobalScope(), annotation_dict, class_binds_near=class_binds_near)
     annotator.visit(tree)
 
     pull_scopes = PullScopes(annotation_dict)

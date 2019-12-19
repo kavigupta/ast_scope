@@ -73,15 +73,20 @@ class IntermediateFunctionScope(IntermediateScope):
 
 
 class IntermediateClassScope(IntermediateScope):
-    def __init__(self, node, parent):
+    def __init__(self, node, parent, class_binds_near):
         super().__init__()
         self.node = node
         self.parent = parent
+        self.class_binds_near = class_binds_near
     def global_frame(self):
         return self.true_parent().find(self)
     def find(self, name, is_assignment, global_acceptable=True):
-        # anything can be in a class frame
-        return self
+        if self.class_binds_near:
+            # anything can be in a class frame
+            return self
+        if is_assignment:
+            return self
+        return self.parent.find(name, is_assignment, global_acceptable)
 
 class GrabVariable(ast.NodeVisitor):
     """
@@ -140,9 +145,10 @@ class ProcessArguments(ast.NodeVisitor):
         self.expr_scope.visit(node)
 
 class AnnotateScope(GroupSimilarConstructsVisitor):
-    def __init__(self, scope, annotation_dict):
+    def __init__(self, scope, annotation_dict, class_binds_near):
         self.scope = scope
         self.annotation_dict = annotation_dict
+        self.class_binds_near = class_binds_near
 
     def annotate_intermediate_scope(self, node, name, is_assign):
         self.annotation_dict[node] = name, self.scope, is_assign
@@ -159,18 +165,21 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         self.annotate_intermediate_scope(arg, arg.arg, True)
         self.scope.modify(arg.arg)
 
+    def create_subannotator(self, scope):
+        return AnnotateScope(scope, self.annotation_dict, self.class_binds_near)
+
     def visit_function_def(self, func_node, is_async):
         del is_async
         self.annotate_intermediate_scope(func_node, func_node.name, True)
         self.scope.modify(func_node.name)
-        subscope = AnnotateScope(IntermediateFunctionScope(func_node, self.scope), self.annotation_dict)
+        subscope = self.create_subannotator(IntermediateFunctionScope(func_node, self.scope))
         visit_all(self, getattr(func_node, 'type_comment', None), func_node.decorator_list)
         ProcessArguments(self, subscope).visit(func_node.args)
         visit_all(subscope, func_node.body, func_node.returns)
 
     def visit_Lambda(self, func_node):
         self.annotate_intermediate_scope(func_node, '<lambda>', None)
-        subscope = AnnotateScope(IntermediateFunctionScope(func_node, self.scope), self.annotation_dict)
+        subscope = self.create_subannotator(IntermediateFunctionScope(func_node, self.scope))
         ProcessArguments(self, subscope).visit(func_node.args)
         visit_all(subscope, func_node.body)
 
@@ -179,7 +188,7 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         current_scope = self
         for comprehension in comprehensions:
             self.annotate_intermediate_scope(comprehension, '<comp>', None)
-            subscope = AnnotateScope(IntermediateFunctionScope(comprehension, current_scope.scope), self.annotation_dict)
+            subscope = self.create_subannotator(IntermediateFunctionScope(comprehension, current_scope.scope))
             visit_all(current_scope, comprehension.iter)
             visit_all(subscope, comprehension.target, comprehension.ifs)
             current_scope = subscope
@@ -188,7 +197,7 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
     def visit_ClassDef(self, class_node):
         self.annotate_intermediate_scope(class_node, class_node.name, True)
         self.scope.modify(class_node.name)
-        subscope = AnnotateScope(IntermediateClassScope(class_node, self.scope), self.annotation_dict)
+        subscope = self.create_subannotator(IntermediateClassScope(class_node, self.scope, self.class_binds_near))
         ast.NodeVisitor.generic_visit(subscope, class_node)
 
     def visit_Global(self, global_node):

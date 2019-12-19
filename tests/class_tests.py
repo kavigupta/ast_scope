@@ -1,6 +1,50 @@
 from .utils import DisplayAnnotatedTestCase
 
-class ClassTests(DisplayAnnotatedTestCase):
+class TestClassDefault(DisplayAnnotatedTestCase):
+    def test_class(self):
+        self.assertAnnotationWorks(
+            """
+            {g}class X: pass
+            """
+        )
+    def test_assigment_is_local(self):
+        self.assertAnnotationWorks(
+            """
+            {g}class X:
+                {-X@1:0}x = 2
+            """
+        )
+    def test_lookup_is_not_in_class_frame(self):
+        self.assertAnnotationWorks(
+            """
+            {g}class X:
+                {g}x
+            """
+        )
+    def test_lookup_is_not_in_class_frame_even_if_assign(self):
+        self.assertAnnotationWorks(
+            """
+            {g}class X:
+                {-X@1:0}x = 3
+                {g}x
+            """
+        )
+    def test_lookup_in_parent(self):
+        self.assertAnnotationWorks(
+            """
+            {g}def f():
+                {~f@1:0}x = 2
+                {~f@1:0}class X:
+                    {~f@1:0}x, {g}y
+            {g}y = 3
+            """
+        )
+
+class ClassTestsClassBindsNear(DisplayAnnotatedTestCase):
+    def assertAnnotationWorks(self, *args, **kwargs):
+        kwargs.update(dict(class_binds_near=True))
+        super().assertAnnotationWorks(*args, **kwargs)
+
     def test_class(self):
         self.assertAnnotationWorks(
             """
