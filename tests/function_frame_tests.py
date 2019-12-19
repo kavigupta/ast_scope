@@ -106,3 +106,12 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                     pass
             """
         )
+    def test_def_is_assign(self):
+        self.assertAnnotationWorks(
+            """
+            {g}def f():
+                {~f@1:0}def g(): pass
+                return {~f@1:0}g
+            {g}def g(): pass
+            """
+        )
