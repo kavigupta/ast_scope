@@ -13,7 +13,7 @@ class Variables:
     def all_symbols(self):
         var_names = {var.id for var in self.variables}
         block_definitions = {var.name for var in self.functions | self.classes}
-        import_statements = {name_of_alias(var.name) for var in self.import_statements}
+        import_statements = {name_of_alias(var) for var in self.import_statements}
         return var_names | block_definitions | import_statements
 
 class Scope(abc.ABC):
@@ -21,6 +21,8 @@ class Scope(abc.ABC):
         self.variables = Variables()
     def add_variable(self, node):
         self.variables.variables.add(node)
+    def add_import(self, node):
+        self.variables.import_statements.add(node)
     @abc.abstractmethod
     def add_child(self, scope):
         pass
