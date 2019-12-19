@@ -20,8 +20,8 @@ class PullScopes(GroupSimilarConstructsVisitor):
         return self.node_to_corresponding_scope[int_scope.node]
 
     def pull_scope(self, node, include_as_variable=True):
-        name, intermediate_scope = self.annotation_dict[node]
-        true_intermediate_scope = intermediate_scope.find(name)
+        name, intermediate_scope, is_assign = self.annotation_dict[node]
+        true_intermediate_scope = intermediate_scope.find(name, is_assign)
         scope = self.convert(true_intermediate_scope)
         if include_as_variable:
             self.node_to_containing_scope[node] = scope

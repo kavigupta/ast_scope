@@ -45,7 +45,7 @@ class IntermediateScope(abc.ABC):
         return parent
 
 class IntermediateGlobalScope(IntermediateScope):
-    def find(self, name, global_acceptable=True):
+    def find(self, name, is_assignment, global_acceptable=True):
         if not global_acceptable:
             return None
         return self
@@ -62,14 +62,14 @@ class IntermediateFunctionScope(IntermediateScope):
     def global_frame(self):
         return self.true_parent().global_frame()
 
-    def find(self, name, global_acceptable=True):
+    def find(self, name, is_assignment, global_acceptable=True):
         if name in self.global_variables:
             return self.global_frame()
         if name in self.nonlocal_variables:
-            return self.true_parent().find(name, global_acceptable=False)
+            return self.true_parent().find(name, is_assignment, global_acceptable=False)
         if name in self.written_variables:
             return self
-        return self.true_parent().find(name, global_acceptable)
+        return self.true_parent().find(name, is_assignment, global_acceptable)
 
 
 class IntermediateClassScope(IntermediateScope):
@@ -79,7 +79,7 @@ class IntermediateClassScope(IntermediateScope):
         self.parent = parent
     def global_frame(self):
         return self.true_parent().find(self)
-    def find(self, name, global_acceptable=True):
+    def find(self, name, is_assignment, global_acceptable=True):
         # anything can be in a class frame
         return self
 
@@ -87,9 +87,10 @@ class GrabVariable(ast.NodeVisitor):
     """
     Dumps variables from a given name object into the given scope.
     """
-    def __init__(self, scope, variable):
+    def __init__(self, scope, variable, annotation_dict):
         self.scope = scope
         self.variable = variable
+        self.annotation_dict = annotation_dict
 
     def visit_generic(self, node):
         raise RuntimeError("Unsupported node type: {node}".format(node=node))
@@ -97,14 +98,22 @@ class GrabVariable(ast.NodeVisitor):
     def visit_Name(self, node):
         super().visit_generic(node)
 
+    def load(self):
+        self.annotation_dict[self.variable] = self.variable.id, self.scope, False
+        self.scope.load(self.variable.id)
+
+    def modify(self):
+        self.annotation_dict[self.variable] = self.variable.id, self.scope, True
+        self.scope.modify(self.variable.id)
+
     def visit_Load(self, _):
-        self.scope.load(self.variable)
+        self.load()
 
     def visit_Store(self, _):
-        self.scope.modify(self.variable)
+        self.modify()
 
     def visit_Del(self, _):
-        self.scope.modify(self.variable)
+        self.modify()
 
     def visit_AugLoad(self, _):
         raise RuntimeError("Unsupported: AugStore")
@@ -135,25 +144,24 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         self.scope = scope
         self.annotation_dict = annotation_dict
 
-    def annotate_intermediate_scope(self, node, name):
-        self.annotation_dict[node] = name, self.scope
+    def annotate_intermediate_scope(self, node, name, is_assign):
+        self.annotation_dict[node] = name, self.scope, is_assign
 
     def visit_Name(self, name_node):
-        self.annotate_intermediate_scope(name_node, name_node.id)
-        GrabVariable(self.scope, name_node.id).generic_visit(name_node)
+        GrabVariable(self.scope, name_node, self.annotation_dict).generic_visit(name_node)
 
     def visit_alias(self, alias_node):
         variable = name_of_alias(alias_node)
-        self.annotate_intermediate_scope(alias_node, variable)
+        self.annotate_intermediate_scope(alias_node, variable, True)
         self.scope.modify(variable)
 
     def visit_arg(self, arg):
-        self.annotate_intermediate_scope(arg, arg.arg)
+        self.annotate_intermediate_scope(arg, arg.arg, True)
         self.scope.modify(arg.arg)
 
     def visit_function_def(self, func_node, is_async):
         del is_async
-        self.annotate_intermediate_scope(func_node, func_node.name)
+        self.annotate_intermediate_scope(func_node, func_node.name, True)
         self.scope.modify(func_node.name)
         subscope = AnnotateScope(IntermediateFunctionScope(func_node, self.scope), self.annotation_dict)
         visit_all(self, getattr(func_node, 'type_comment', None), func_node.decorator_list)
@@ -161,7 +169,7 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         visit_all(subscope, func_node.body, func_node.returns)
 
     def visit_Lambda(self, func_node):
-        self.annotate_intermediate_scope(func_node, '<lambda>')
+        self.annotate_intermediate_scope(func_node, '<lambda>', None)
         subscope = AnnotateScope(IntermediateFunctionScope(func_node, self.scope), self.annotation_dict)
         ProcessArguments(self, subscope).visit(func_node.args)
         visit_all(subscope, func_node.body)
@@ -170,7 +178,7 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         del typ
         current_scope = self
         for comprehension in comprehensions:
-            self.annotate_intermediate_scope(comprehension, '<comp>')
+            self.annotate_intermediate_scope(comprehension, '<comp>', None)
             subscope = AnnotateScope(IntermediateFunctionScope(comprehension, current_scope.scope), self.annotation_dict)
             visit_all(current_scope, comprehension.iter)
             visit_all(subscope, comprehension.target, comprehension.ifs)
@@ -178,7 +186,7 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         visit_all(current_scope, targets)
 
     def visit_ClassDef(self, class_node):
-        self.annotate_intermediate_scope(class_node, class_node.name)
+        self.annotate_intermediate_scope(class_node, class_node.name, True)
         self.scope.modify(class_node.name)
         subscope = AnnotateScope(IntermediateClassScope(class_node, self.scope), self.annotation_dict)
         ast.NodeVisitor.generic_visit(subscope, class_node)
