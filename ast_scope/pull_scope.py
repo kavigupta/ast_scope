@@ -37,6 +37,11 @@ class PullScopes(GroupSimilarConstructsVisitor):
         scope.add_variable(node)
         super().generic_visit(node)
 
+    def visit_alias(self, node):
+        scope = self.pull_scope(node)
+        scope.add_import(node)
+        super().generic_visit(node)
+
     def visit_function_def(self, node, is_async):
         del is_async
         scope = self.pull_scope(node)

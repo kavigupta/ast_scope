@@ -3,6 +3,7 @@ import ast
 import abc
 
 from .group_similar_constructs import GroupSimilarConstructsVisitor
+from .utils import name_of_alias
 
 class IntermediateScope(abc.ABC):
     """
@@ -213,8 +214,3 @@ def visit_all(visitor, *nodes):
             visit_all(visitor, *node)
         else:
             visitor.visit(node)
-
-def name_of_alias(alias_node):
-    if alias_node.asname is not None:
-        return alias_node.asname
-    return alias_node.name
