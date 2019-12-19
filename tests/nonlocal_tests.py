@@ -76,3 +76,13 @@ class NonlocalTest(DisplayAnnotatedTestCase):
                 return {~f@1:0}g
             """
         )
+    def test_symbol_in_different_frame_from_parent(self):
+        self.assertAnnotationWorks(
+            """
+            {g}def f({~f@1:0}x, {~f@1:0}y):
+                {~f@1:0}def g({~g@2:4}y):
+                    nonlocal x
+                    {~f@1:0}def x():
+                        {~g@2:4}y
+            """
+        )
