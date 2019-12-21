@@ -63,8 +63,38 @@ scope_info = ast_scope.annotate(tree)
 graph = scope_info.static_dependency_graph
 ```
 
-which results in the following graph of dependencies between top-level functions:
+which results in the following networkx DiGraph of dependencies between top-level functions:
 
 <img src="img/dependency_graph_example.png">
 
 See the documentation for some caveats.
+
+## Example usage: find a specific symbol's scope
+
+Take the following code:
+
+```
+code = """
+def f(x):
+    def g(x): return x()
+    return g(lambda: x)
+"""
+```
+
+First, parse the code and identify the node (in practice, you'd probably have this always).
+
+```
+import ast, ast_scope
+tree = ast.parse(code)
+last_x = tree.body[0].body[-1].value.args[0].body
+```
+
+If you want to find the scope in which the last `x` could be found, just run the annotator and look up it's scope!
+
+```
+# run the annotator
+scope_info = ast_scope.annotate(tree)
+scope_x = scope_info[last_x]
+```
+
+You should get a `FunctionScope` object which contains a bunch of information about the other variables, etc., in the scope, but also `scope_x.function_node`, a pointer to the node containing the `def` statement for `f`.
