@@ -32,12 +32,18 @@ class ScopeInfo:
         varis = self.global_scope.variables
         for construct in varis.functions | varis.classes:
             for node in get_all_nodes(construct):
-                if node not in self._node_to_containing_scope:
+                if node not in self:
                     continue
-                if self._node_to_containing_scope[node] is not self._global_scope:
+                if self[node] is not self._global_scope:
                     continue
                 g.add_edge(get_name(construct), get_name(node))
         return g
+
+    def __contains__(self, node):
+        return node in self._node_to_containing_scope
+
+    def __getitem__(self, node):
+        return self._node_to_containing_scope[node]
 
 def annotate(tree, class_binds_near=False):
     annotation_dict = {}
