@@ -97,6 +97,12 @@ class ImportAssignmentTests(DisplayAnnotatedTestCase):
                 {g}os
             """
         )
+    def test_star_import(self):
+        self.assertAnnotationWorks(
+            """
+            from os import *
+            """
+        )
     def test_aliases(self):
         self.assertAnnotationWorks(
             """
