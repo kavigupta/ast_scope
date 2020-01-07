@@ -63,7 +63,7 @@ scope_info = ast_scope.annotate(tree)
 graph = scope_info.static_dependency_graph
 ```
 
-which results in the following networkx DiGraph of dependencies between top-level functions:
+which results in the following directed graph of dependencies between top-level functions (rendering using networkx):
 
 <img src="img/dependency_graph_example.png">
 
