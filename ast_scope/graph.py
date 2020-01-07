@@ -19,3 +19,6 @@ class DiGraph:
 
     def edges(self):
         return list((source, target) for source, targets in self.__adjacency_list.items() for target in targets)
+
+    def neighbors(self, node):
+        return list(self.__adjacency_list[node])

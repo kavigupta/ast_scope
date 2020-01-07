@@ -5,14 +5,14 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ast_scope", # Replace with your own username
-    version="0.3.0",
+    version="0.3.1",
     author="Kavi Gupta",
     author_email="ast_scope@kavigupta.org",
     description="Annotates a Python AST with the scope of symbols.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/kavigupta/ast_scope",
-    download_url="https://github.com/kavigupta/ast_scope/archive/0.3.0.zip",
+    download_url="https://github.com/kavigupta/ast_scope/archive/0.3.1.zip",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3.5",
