@@ -1,3 +1,4 @@
+from ast_scope.scope import FunctionScope
 from .annotator import AnnotateScope, IntermediateGlobalScope
 from .pull_scope import PullScopes
 from .utils import get_all_nodes, get_name
@@ -43,6 +44,18 @@ class ScopeInfo:
 
     def __getitem__(self, node):
         return self._node_to_containing_scope[node]
+
+    def function_scope_for(self, node):
+        """
+        Returns the function scope for the given FunctionDef node.
+        """
+        scopes = self._node_to_containing_scope.values()
+        for scope in scopes:
+            if not isinstance(scope, FunctionScope):
+                continue
+            if node == scope.function_node:
+                return scope
+        return None
 
 
 def annotate(tree, class_binds_near=False):

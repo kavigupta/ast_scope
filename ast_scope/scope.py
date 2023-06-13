@@ -1,3 +1,4 @@
+import ast
 import attr
 import abc
 
@@ -13,10 +14,16 @@ class Variables:
 
     @property
     def all_symbols(self):
-        var_names = {var.id for var in self.variables}
+        var_names = {
+            var.arg if isinstance(var, ast.arg) else var.id for var in self.variables
+        }
         block_definitions = {var.name for var in self.functions | self.classes}
         import_statements = {name_of_alias(var) for var in self.import_statements}
         return var_names | block_definitions | import_statements
+
+    @property
+    def all_arguments(self):
+        return {var for var in self.variables if isinstance(var, ast.arg)}
 
 
 class Scope(abc.ABC):
