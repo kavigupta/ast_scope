@@ -7,34 +7,40 @@ from .annotator import name_of_alias
 
 @attr.s
 class Variables:
+    arguments = attr.ib(attr.Factory(set))
     variables = attr.ib(attr.Factory(set))
     functions = attr.ib(attr.Factory(set))
     classes = attr.ib(attr.Factory(set))
     import_statements = attr.ib(attr.Factory(set))
+    exceptions = attr.ib(attr.Factory(set))
 
     @property
     def all_symbols(self):
-        var_names = {
-            var.arg if isinstance(var, ast.arg) else var.id for var in self.variables
-        }
+        arguments = {var.arg for var in self.arguments}
+        var_names = {var.id for var in self.variables}
         block_definitions = {var.name for var in self.functions | self.classes}
         import_statements = {name_of_alias(var) for var in self.import_statements}
-        return var_names | block_definitions | import_statements
-
-    @property
-    def all_arguments(self):
-        return {var for var in self.variables if isinstance(var, ast.arg)}
+        exceptions = {var.name for var in self.exceptions}
+        return (
+            arguments | var_names | block_definitions | import_statements | exceptions
+        )
 
 
 class Scope(abc.ABC):
     def __init__(self):
         self.variables = Variables()
 
+    def add_argument(self, node):
+        self.variables.arguments.add(node)
+
     def add_variable(self, node):
         self.variables.variables.add(node)
 
     def add_import(self, node):
         self.variables.import_statements.add(node)
+
+    def add_exception(self, node):
+        self.variables.exceptions.add(node)
 
     @abc.abstractmethod
     def add_child(self, scope):

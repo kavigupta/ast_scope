@@ -40,7 +40,7 @@ class PullScopes(GroupSimilarConstructsVisitor):
 
     def visit_arg(self, node):
         scope = self.pull_scope(node)
-        scope.add_variable(node)
+        scope.add_argument(node)
         super().generic_visit(node)
 
     def visit_alias(self, node):
@@ -69,7 +69,7 @@ class PullScopes(GroupSimilarConstructsVisitor):
 
     def visit_ExceptHandler(self, node):
         scope = self.pull_scope(node)
-        scope.add_variable(node)
+        scope.add_exception(node)
         super().generic_visit(node)
 
     def visit_comprehension_generic(self, targets, comprehensions, node):
