@@ -1,4 +1,3 @@
-
 class DiGraph:
     def __init__(self):
         self.__adjacency_list = {}
@@ -18,7 +17,11 @@ class DiGraph:
         return list(self.__adjacency_list)
 
     def edges(self):
-        return list((source, target) for source, targets in self.__adjacency_list.items() for target in targets)
+        return list(
+            (source, target)
+            for source, targets in self.__adjacency_list.items()
+            for target in targets
+        )
 
     def neighbors(self, node):
         return list(self.__adjacency_list[node])

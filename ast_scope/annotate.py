@@ -1,8 +1,8 @@
-
 from .annotator import AnnotateScope, IntermediateGlobalScope
 from .pull_scope import PullScopes
 from .utils import get_all_nodes, get_name
 from .graph import DiGraph
+
 
 class ScopeInfo:
     def __init__(self, tree, global_scope, error_scope, node_to_containing_scope):
@@ -44,11 +44,19 @@ class ScopeInfo:
     def __getitem__(self, node):
         return self._node_to_containing_scope[node]
 
+
 def annotate(tree, class_binds_near=False):
     annotation_dict = {}
-    annotator = AnnotateScope(IntermediateGlobalScope(), annotation_dict, class_binds_near=class_binds_near)
+    annotator = AnnotateScope(
+        IntermediateGlobalScope(), annotation_dict, class_binds_near=class_binds_near
+    )
     annotator.visit(tree)
 
     pull_scopes = PullScopes(annotation_dict)
     pull_scopes.visit(tree)
-    return ScopeInfo(tree, pull_scopes.global_scope, pull_scopes.error_scope, pull_scopes.node_to_containing_scope)
+    return ScopeInfo(
+        tree,
+        pull_scopes.global_scope,
+        pull_scopes.error_scope,
+        pull_scopes.node_to_containing_scope,
+    )
