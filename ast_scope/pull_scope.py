@@ -67,6 +67,11 @@ class PullScopes(GroupSimilarConstructsVisitor):
         )
         super().generic_visit(node)
 
+    def visit_ExceptHandler(self, node):
+        scope = self.pull_scope(node)
+        scope.add_variable(node)
+        super().generic_visit(node)
+
     def visit_comprehension_generic(self, targets, comprehensions, node):
         # mate sure to visit the comprehensions first
         visit_all(self, comprehensions)

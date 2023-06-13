@@ -165,6 +165,11 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
             name_node
         )
 
+    def visit_ExceptHandler(self, handler_node):
+        self.annotate_intermediate_scope(handler_node, handler_node.name, True)
+        self.scope.modify(handler_node.name)
+        visit_all(self, handler_node.type, handler_node.body)
+
     def visit_alias(self, alias_node):
         variable = name_of_alias(alias_node)
         self.annotate_intermediate_scope(alias_node, variable, True)
