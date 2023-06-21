@@ -15,15 +15,18 @@ class Variables:
     exceptions = attr.ib(attr.Factory(set))
 
     @property
+    def node_to_symbol(self):
+        result = {}
+        result.update({var: var.arg for var in self.arguments})
+        result.update({var: var.id for var in self.variables})
+        result.update({var: var.name for var in self.functions | self.classes})
+        result.update({var: name_of_alias(var) for var in self.import_statements})
+        result.update({var: var.name for var in self.exceptions})
+        return result
+
+    @property
     def all_symbols(self):
-        arguments = {var.arg for var in self.arguments}
-        var_names = {var.id for var in self.variables}
-        block_definitions = {var.name for var in self.functions | self.classes}
-        import_statements = {name_of_alias(var) for var in self.import_statements}
-        exceptions = {var.name for var in self.exceptions}
-        return (
-            arguments | var_names | block_definitions | import_statements | exceptions
-        )
+        return set(self.node_to_symbol.values())
 
 
 class Scope(abc.ABC):
