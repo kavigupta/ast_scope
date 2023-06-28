@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="ast_scope", # Replace with your own username
+    name="ast_scope",  # Replace with your own username
     version="0.4.1",
     author="Kavi Gupta",
     author_email="ast_scope@kavigupta.org",
@@ -21,8 +21,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.5',
-    install_requires=[
-        'attrs==19.3.0'
-    ]
+    python_requires=">=3.5",
+    install_requires=["attrs==19.3.0"],
 )
