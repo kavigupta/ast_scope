@@ -39,6 +39,9 @@ class ScopeInfo:
                 g.add_edge(get_name(construct), get_name(node))
         return g
 
+    def __iter__(self):
+        return iter(self._node_to_containing_scope)
+
     def __contains__(self, node):
         return node in self._node_to_containing_scope
 
