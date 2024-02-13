@@ -93,6 +93,10 @@ def all_nodes_gen_for_scope(scope):
     for node in all_nodes_gen_for_variables(scope.variables):
         yield scope, node
 
+
+def remove_directives(annotated_code):
+    return trim(re.sub(r"\{[^\}]+\}", "", annotated_code))
+
 class DisplayAnnotatedTestCase(unittest.TestCase):
     def _check_nodes(self, mapping, *scopes):
         overall_scope = [item for scope in scopes for item in all_nodes_gen_for_scope(scope)]
@@ -110,7 +114,7 @@ class DisplayAnnotatedTestCase(unittest.TestCase):
             return ""
         annotated_code = re.sub(regex, replacer, annotated_code)
         if code is None:
-            code = trim(re.sub(r"\{[^\}]+\}", "", annotated_code))
+            code = remove_directives(annotated_code)
 
         scope_info = annotate(ast.parse(code), class_binds_near)
         scope_info.static_dependency_graph # just check for errors
