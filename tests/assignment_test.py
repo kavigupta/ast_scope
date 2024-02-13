@@ -98,10 +98,10 @@ class ImportAssignmentTests(DisplayAnnotatedTestCase):
             """
         )
     def test_star_import(self):
-        # note: no annotation in any version
+        # TODO: no annotation in any version
         self.assertAnnotationWorks(
             """
-            from os import *
+            from os import {>=3.10!g}*
             """
         )
     def test_aliases(self):
