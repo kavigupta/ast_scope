@@ -1,4 +1,3 @@
-
 import sys
 import ast
 import re
@@ -106,10 +105,12 @@ class DisplayAnnotatedTestCase(unittest.TestCase):
 
     def assertAnnotationWorks(self, annotated_code, code=None, *, class_binds_near=False):
         # directives of the form {>version!scope} are removed unless the version is satisfied
-        regex = r"\{>=(\d+\.\d+)!([^\}]+)\}"
+        regex = r"\{(<|>=)(\d+\.\d+)!([^\}]+)\}"
         def replacer(match):
-            version, scope = match.groups()
-            if sys.version_info >= tuple(map(int, version.split("."))):
+            comparator, version, scope = match.groups()
+            geq_expected = comparator == ">="
+            geq_actual = sys.version_info >= tuple(map(int, version.split(".")))
+            if geq_actual == geq_expected:
                 return "{" + scope + "}"
             return ""
         annotated_code = re.sub(regex, replacer, annotated_code)

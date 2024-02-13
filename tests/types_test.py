@@ -7,8 +7,8 @@ from .utils import DisplayAnnotatedTestCase, remove_directives
 class TypeAnnotationTest(DisplayAnnotatedTestCase):
     def test_basic_assignment(self):
         annotated_code = """
-        @{g}f
-        {g}class A:
+        @{g}f{<3.8!g}
+        {>=3.8!g}class A:
             pass
 
         {g}class B({g}A, x={g}A):
