@@ -227,7 +227,7 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         subscope = self.create_subannotator(
             IntermediateClassScope(node, self.scope, self.class_binds_near)
         )
-        assert class_node._fields == (
+        assert node._fields == (
             "name",
             "bases",
             "keywords",
