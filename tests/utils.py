@@ -1,4 +1,3 @@
-
 import sys
 import ast
 import re
@@ -83,6 +82,8 @@ def all_nodes_gen_for_variables(variables):
     yield from variables.functions
     yield from variables.classes
     yield from variables.import_statements
+    yield from variables.arguments
+    yield from variables.exceptions
 
 def all_nodes_gen_for_scope(scope):
     if hasattr(scope, 'children'):
@@ -90,6 +91,10 @@ def all_nodes_gen_for_scope(scope):
             yield from all_nodes_gen_for_scope(child_scope)
     for node in all_nodes_gen_for_variables(scope.variables):
         yield scope, node
+
+
+def remove_directives(annotated_code):
+    return trim(re.sub(r"\{[^\}]+\}", "", annotated_code))
 
 class DisplayAnnotatedTestCase(unittest.TestCase):
     def _check_nodes(self, mapping, *scopes):
@@ -99,8 +104,18 @@ class DisplayAnnotatedTestCase(unittest.TestCase):
         self.assertCountEqual([node for _, node in overall_scope], list(mapping))
 
     def assertAnnotationWorks(self, annotated_code, code=None, *, class_binds_near=False):
+        # directives of the form {>version!scope} are removed unless the version is satisfied
+        regex = r"\{(<|>=)(\d+\.\d+)!([^\}]+)\}"
+        def replacer(match):
+            comparator, version, scope = match.groups()
+            geq_expected = comparator == ">="
+            geq_actual = sys.version_info >= tuple(map(int, version.split(".")))
+            if geq_actual == geq_expected:
+                return "{" + scope + "}"
+            return ""
+        annotated_code = re.sub(regex, replacer, annotated_code)
         if code is None:
-            code = trim(re.sub(r"\{[^\}]+\}", "", annotated_code))
+            code = remove_directives(annotated_code)
 
         scope_info = annotate(ast.parse(code), class_binds_near)
         scope_info.static_dependency_graph # just check for errors

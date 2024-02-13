@@ -1,5 +1,7 @@
 import ast
 
+from typing import List
+
 from .group_similar_constructs import GroupSimilarConstructsVisitor
 
 
@@ -12,10 +14,12 @@ class GetAllNodes(ast.NodeVisitor):
         super().generic_visit(node)
 
 
-def get_all_nodes(node: ast.AST):
+def get_all_nodes(*nodes: List[ast.AST]):
     getter = GetAllNodes()
-    getter.visit(node)
-    return [subnode for subnode in getter.nodes if subnode is not node]
+    for node in nodes:
+        getter.visit(node)
+    nodes = set(nodes)
+    return [subnode for subnode in getter.nodes if subnode not in nodes]
 
 
 class GetName(GroupSimilarConstructsVisitor):

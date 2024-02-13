@@ -32,7 +32,7 @@ class ScopeInfo:
         g.add_nodes_from(variables)
         varis = self.global_scope.variables
         for construct in varis.functions | varis.classes:
-            for node in get_all_nodes(construct):
+            for node in get_all_nodes(*construct.body):
                 if node not in self:
                     continue
                 if self[node] is not self._global_scope:
