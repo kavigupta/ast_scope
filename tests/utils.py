@@ -83,6 +83,8 @@ def all_nodes_gen_for_variables(variables):
     yield from variables.functions
     yield from variables.classes
     yield from variables.import_statements
+    yield from variables.arguments
+    yield from variables.exceptions
 
 def all_nodes_gen_for_scope(scope):
     if hasattr(scope, 'children'):
