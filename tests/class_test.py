@@ -133,3 +133,13 @@ class ClassTestsClassBindsNear(DisplayAnnotatedTestCase):
                 [{g}x for {~@3:11}t in {-X@1:0}x]
             """
         )
+
+    def test_subclass(self):
+        self.assertAnnotationWorks(
+            """
+            {g}class X:
+                {-X@1:0}x = 2
+            {g}class Y({g}X):
+                pass
+            """
+        )
