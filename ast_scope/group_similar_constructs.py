@@ -2,34 +2,34 @@ import ast
 
 
 class GroupSimilarConstructsVisitor(ast.NodeVisitor):
-    def visit_function_def(self, func_node, is_async):
+    def visit_function_def(self, func_node: ast.FunctionDef | ast.AsyncFunctionDef, is_async: bool):
         return self.generic_visit(func_node)
 
-    def visit_FunctionDef(self, func_node):
-        return self.visit_function_def(func_node, is_async=False)
+    def visit_FunctionDef(self, node: ast.FunctionDef):
+        return self.visit_function_def(node, is_async=False)
 
-    def visit_AsyncFunctionDef(self, func_node):
-        return self.visit_function_def(func_node, is_async=True)
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+        return self.visit_function_def(node, is_async=True)
 
-    def visit_comprehension_generic(self, targets, comprehensions, node):
+    def visit_comprehension_generic(self, targets: list[ast.expr], comprehensions: list[ast.comprehension], node: ast.AST):
         return self.generic_visit(node)
 
-    def visit_DictComp(self, comp_node):
+    def visit_DictComp(self, node: ast.DictComp):
         return self.visit_comprehension_generic(
-            [comp_node.key, comp_node.value], comp_node.generators, comp_node
+            [node.key, node.value], node.generators, node
         )
 
-    def visit_ListComp(self, comp_node):
+    def visit_ListComp(self, node: ast.ListComp):
         return self.visit_comprehension_generic(
-            [comp_node.elt], comp_node.generators, comp_node
+            [node.elt], node.generators, node
         )
 
-    def visit_SetComp(self, comp_node):
+    def visit_SetComp(self, node: ast.SetComp):
         return self.visit_comprehension_generic(
-            [comp_node.elt], comp_node.generators, comp_node
+            [node.elt], node.generators, node
         )
 
-    def visit_GeneratorExp(self, comp_node):
+    def visit_GeneratorExp(self, node: ast.GeneratorExp):
         return self.visit_comprehension_generic(
-            [comp_node.elt], comp_node.generators, comp_node
+            [node.elt], node.generators, node
         )
