@@ -222,7 +222,17 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         subscope = self.create_subannotator(
             IntermediateClassScope(class_node, self.scope, self.class_binds_near)
         )
-        ast.NodeVisitor.generic_visit(subscope, class_node)
+        assert class_node._fields == (
+            "name",
+            "bases",
+            "keywords",
+            "body",
+            "decorator_list",
+        )
+        visit_all(subscope, class_node.body)
+        visit_all(
+            self, class_node.bases, class_node.keywords, class_node.decorator_list
+        )
 
     def visit_Global(self, global_node):
         for name in global_node.names:
