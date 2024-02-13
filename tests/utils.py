@@ -101,6 +101,14 @@ class DisplayAnnotatedTestCase(unittest.TestCase):
         self.assertCountEqual([node for _, node in overall_scope], list(mapping))
 
     def assertAnnotationWorks(self, annotated_code, code=None, *, class_binds_near=False):
+        # directives of the form {>version!scope} are removed unless the version is satisfied
+        regex = r"\{>=(\d+\.\d+)!([^\}]+)\}"
+        def replacer(match):
+            version, scope = match.groups()
+            if sys.version_info >= tuple(map(int, version.split("."))):
+                return "{" + scope + "}"
+            return ""
+        annotated_code = re.sub(regex, replacer, annotated_code)
         if code is None:
             code = trim(re.sub(r"\{[^\}]+\}", "", annotated_code))
 

@@ -75,7 +75,7 @@ class ImportAssignmentTests(DisplayAnnotatedTestCase):
     def test_global_import(self):
         self.assertAnnotationWorks(
             """
-            import os
+            import {>=3.10!g}os
             {g}def f():
                 {g}os
             """
@@ -84,7 +84,7 @@ class ImportAssignmentTests(DisplayAnnotatedTestCase):
         self.assertAnnotationWorks(
             """
             {g}def f():
-                import os
+                import {>=3.10!~f@1:0}os
                 {~f@1:0}os
             """
         )
@@ -92,12 +92,13 @@ class ImportAssignmentTests(DisplayAnnotatedTestCase):
         self.assertAnnotationWorks(
             """
             {g}def f():
-                from os import system
+                from os import {>=3.10!~f@1:0}system
                 {~f@1:0}system
                 {g}os
             """
         )
     def test_star_import(self):
+        # note: no annotation in any version
         self.assertAnnotationWorks(
             """
             from os import *
@@ -107,8 +108,8 @@ class ImportAssignmentTests(DisplayAnnotatedTestCase):
         self.assertAnnotationWorks(
             """
             {g}def f():
-                from os import system as a
-                import sys as b
+                from os import {>=3.10!~f@1:0}system as a
+                import {>=3.10!~f@1:0}sys as b
                 {g}os
                 {g}system
                 {~f@1:0}a
