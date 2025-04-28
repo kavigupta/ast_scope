@@ -1,13 +1,21 @@
-from ast_scope.scope import FunctionScope
+import ast
 
-from .annotator import AnnotateScope, IntermediateGlobalScope
+from ast_scope.scope import ErrorScope, FunctionScope, GlobalScope, Scope
+
+from .annotator import AnnotateScope, IntermediateGlobalScope, IntermediateScope
 from .graph import DiGraph
 from .pull_scope import PullScopes
 from .utils import get_all_nodes, get_name
 
 
 class ScopeInfo:
-    def __init__(self, tree, global_scope, error_scope, node_to_containing_scope):
+    def __init__(
+        self,
+        tree: ast.AST,
+        global_scope: GlobalScope,
+        error_scope: ErrorScope,
+        node_to_containing_scope: dict[ast.AST, Scope],
+    ):
         self._tree = tree
         self._global_scope = global_scope
         self._error_scope = error_scope
@@ -43,13 +51,13 @@ class ScopeInfo:
     def __iter__(self):
         return iter(self._node_to_containing_scope)
 
-    def __contains__(self, node):
+    def __contains__(self, node: ast.AST):
         return node in self._node_to_containing_scope
 
-    def __getitem__(self, node):
+    def __getitem__(self, node: ast.AST):
         return self._node_to_containing_scope[node]
 
-    def function_scope_for(self, node):
+    def function_scope_for(self, node: ast.AST):
         """
         Returns the function scope for the given FunctionDef node.
         """
@@ -62,8 +70,8 @@ class ScopeInfo:
         return None
 
 
-def annotate(tree, class_binds_near=False):
-    annotation_dict = {}
+def annotate(tree: ast.AST, class_binds_near: bool = False):
+    annotation_dict: dict[ast.AST, tuple[str, IntermediateScope, bool]] = {}
     annotator = AnnotateScope(
         IntermediateGlobalScope(), annotation_dict, class_binds_near=class_binds_near
     )
