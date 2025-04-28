@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import abc
 import ast
-from typing_extensions import Self
 
 import attr
+from typing_extensions import Self
 
 from .annotator import name_of_alias
 

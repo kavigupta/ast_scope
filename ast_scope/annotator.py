@@ -3,6 +3,7 @@ from __future__ import annotations
 import abc
 import ast
 from typing import Iterable
+
 from typing_extensions import Self
 
 from .group_similar_constructs import GroupSimilarConstructsVisitor
