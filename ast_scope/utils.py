@@ -62,15 +62,10 @@ def compute_class_fields(class_node):
     :returns: (class_fields, parent_fields)
         two lists containing the fields in the class scope and the parent scope, respectively.
     """
-    assert class_node._fields == (
-        "name",
-        "bases",
-        "keywords",
-        "body",
-        "decorator_list",
-    )
-    return [class_node.body], [
-        class_node.bases,
-        class_node.keywords,
-        class_node.decorator_list,
-    ]
+    fields_in_all = ("name", "bases", "keywords", "body", "decorator_list")
+    assert class_node._fields in (fields_in_all, fields_in_all + ("type_params",))
+    class_fields = [class_node.body]
+    parent_fields = [class_node.bases, class_node.keywords, class_node.decorator_list]
+    if "type_params" in class_node._fields:
+        class_fields.append(class_node.type_params)
+    return class_fields, parent_fields
