@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import ast
-from typing import cast
+from typing import cast, Union
 
 from ast_scope.utils import compute_class_fields
 
@@ -29,7 +31,7 @@ class PullScopes(GroupSimilarConstructsVisitor):
             return self.error_scope
         if isinstance(int_scope, IntermediateGlobalScope):
             return self.global_scope
-        int_scope = cast(IntermediateClassScope | IntermediateFunctionScope, int_scope)
+        int_scope = cast(Union[IntermediateClassScope, IntermediateFunctionScope], int_scope)
         return self.node_to_corresponding_scope[int_scope.node]
 
     def pull_scope(self, node: ast.AST, include_as_variable: bool = True) -> Scope:
