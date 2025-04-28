@@ -25,8 +25,8 @@ jobs:
           pytest tests
       - name: Lint with pylint
         run: |
-          # pylint ast_scope setup.py
-          # pylint --disable=duplicate-code tests
+          pylint ast_scope setup.py
+          pylint --disable=duplicate-code tests
           isort ast_scope tests
           black ast_scope tests
           bash -c '[ $(git status --porcelain --untracked-files=no | wc -c) -eq 0 ]  || (git status; git diff; exit 1)'
