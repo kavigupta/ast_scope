@@ -90,13 +90,6 @@ class PullScopes(GroupSimilarConstructsVisitor):
         scope = self.pull_scope(node)
         if node not in self.node_to_corresponding_scope:
             self.node_to_corresponding_scope[node] = ClassScope(node, scope)
-        assert node._fields == (
-            "name",
-            "bases",
-            "keywords",
-            "body",
-            "decorator_list",
-        )
         visit_all(self, node.bases, node.keywords, node.decorator_list)
         scope.add_class(node, self.node_to_corresponding_scope[node])
         visit_all(self, node.body)
