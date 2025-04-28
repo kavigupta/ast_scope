@@ -22,5 +22,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.9",
-    install_requires=["attrs>=19.3.0"],
+    install_requires=["attrs>=19.3.0", "typing-extensions>=4.13.2"],
 )
