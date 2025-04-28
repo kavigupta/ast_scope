@@ -1,5 +1,6 @@
 from .utils import DisplayAnnotatedTestCase
 
+
 class FunctionFrameTest(DisplayAnnotatedTestCase):
     def test_listcomp(self):
         self.assertAnnotationWorks(
@@ -7,12 +8,14 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
             [{~@1:7}x for {~@1:7}x in {g}x]
             """
         )
+
     def test_listcomp_with_if(self):
         self.assertAnnotationWorks(
             """
             [{~@1:7}x for {~@1:7}x in {g}x if {~@1:7}x + {g}y]
             """
         )
+
     def test_nested_listcomp(self):
         self.assertAnnotationWorks(
             """
@@ -20,6 +23,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                    for {~@2:11}x in {g}x if {~@2:11}x + {g}y]
             """
         )
+
     def test_serial_listcomp(self):
         self.assertAnnotationWorks(
             """
@@ -30,6 +34,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
             ]
             """
         )
+
     def test_serial_listcomp_with_if(self):
         self.assertAnnotationWorks(
             """
@@ -39,6 +44,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
             ]
             """
         )
+
     def test_multi_if(self):
         self.assertAnnotationWorks(
             """
@@ -47,6 +53,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
             ]
             """
         )
+
     def test_complex_target(self):
         self.assertAnnotationWorks(
             """
@@ -55,6 +62,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
             ]
             """
         )
+
     def test_inherits_parent(self):
         self.assertAnnotationWorks(
             """
@@ -64,13 +72,18 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 ]
             """
         )
+
     def test_set_comprehension(self):
         self.assertAnnotationWorks("{{~@1:7}x for {~@1:7}x in 2}", "{x for x in 2}")
+
     def test_gen_comprehension(self):
         self.assertAnnotationWorks(
             """
             ({~@1:7}x for {~@1:7}x in 2)
             """
         )
+
     def test_dict_comprehension(self):
-        self.assertAnnotationWorks("{{~@1:9}x:{~@1:9}y for {~@1:9}x, {~@1:9}y in 2}", "{x:y for x, y in 2}")
+        self.assertAnnotationWorks(
+            "{{~@1:9}x:{~@1:9}y for {~@1:9}x, {~@1:9}y in 2}", "{x:y for x, y in 2}"
+        )

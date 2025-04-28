@@ -1,5 +1,5 @@
-
 from .utils import DisplayAnnotatedTestCase
+
 
 class ExceptionTests(DisplayAnnotatedTestCase):
     def test_multiple_arguments(self):

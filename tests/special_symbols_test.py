@@ -1,5 +1,5 @@
-
 from .utils import DisplayAnnotatedTestCase
+
 
 class SpecialSymbolsTest(DisplayAnnotatedTestCase):
     def test_booleans(self):

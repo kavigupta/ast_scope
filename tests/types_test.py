@@ -1,6 +1,7 @@
 import ast
 
 import ast_scope
+
 from .utils import DisplayAnnotatedTestCase, remove_directives
 
 

@@ -1,5 +1,6 @@
 from .utils import DisplayAnnotatedTestCase, from_version
 
+
 class EqualityAssignmentTests(DisplayAnnotatedTestCase):
     def test_basic_assignment(self):
         self.assertAnnotationWorks(
@@ -8,6 +9,7 @@ class EqualityAssignmentTests(DisplayAnnotatedTestCase):
                 {~f@1:0}x = 2
             """
         )
+
     def test_underscore(self):
         self.assertAnnotationWorks(
             """
@@ -15,6 +17,7 @@ class EqualityAssignmentTests(DisplayAnnotatedTestCase):
                 {~f@1:0}_ = 2
             """
         )
+
     def test_element_assignment(self):
         self.assertAnnotationWorks(
             """
@@ -22,6 +25,7 @@ class EqualityAssignmentTests(DisplayAnnotatedTestCase):
                 {g}x[0] = 2
             """
         )
+
     def test_aug_assignment(self):
         self.assertAnnotationWorks(
             """
@@ -29,6 +33,7 @@ class EqualityAssignmentTests(DisplayAnnotatedTestCase):
                 {~f@1:0}x += 2
             """
         )
+
     def test_multi_assignment(self):
         self.assertAnnotationWorks(
             """
@@ -36,6 +41,7 @@ class EqualityAssignmentTests(DisplayAnnotatedTestCase):
                 {~f@1:0}x, {~f@1:0}y = 1, 2
             """
         )
+
     @from_version(3, 8)
     def test_special_assigment(self):
         self.assertAnnotationWorks(
@@ -44,6 +50,7 @@ class EqualityAssignmentTests(DisplayAnnotatedTestCase):
                 ({~f@1:0}x := 2)
             """
         )
+
 
 class LoopAssignmentTests(DisplayAnnotatedTestCase):
     def test_basic_for_loop(self):
@@ -54,6 +61,7 @@ class LoopAssignmentTests(DisplayAnnotatedTestCase):
                     pass
             """
         )
+
     def test_multi_for_loop(self):
         self.assertAnnotationWorks(
             """
@@ -62,6 +70,7 @@ class LoopAssignmentTests(DisplayAnnotatedTestCase):
                     pass
             """
         )
+
     def test_itemizer_loop(self):
         self.assertAnnotationWorks(
             """
@@ -70,6 +79,7 @@ class LoopAssignmentTests(DisplayAnnotatedTestCase):
                     pass
             """
         )
+
 
 class ImportAssignmentTests(DisplayAnnotatedTestCase):
     def test_global_import(self):
@@ -80,6 +90,7 @@ class ImportAssignmentTests(DisplayAnnotatedTestCase):
                 {g}os
             """
         )
+
     def test_local_import(self):
         self.assertAnnotationWorks(
             """
@@ -88,6 +99,7 @@ class ImportAssignmentTests(DisplayAnnotatedTestCase):
                 {~f@1:0}os
             """
         )
+
     def test_sub_import(self):
         self.assertAnnotationWorks(
             """
@@ -97,6 +109,7 @@ class ImportAssignmentTests(DisplayAnnotatedTestCase):
                 {g}os
             """
         )
+
     def test_star_import(self):
         # TODO: no annotation in any version
         self.assertAnnotationWorks(
@@ -104,6 +117,7 @@ class ImportAssignmentTests(DisplayAnnotatedTestCase):
             from os import {>=3.10!g}*
             """
         )
+
     def test_aliases(self):
         self.assertAnnotationWorks(
             """

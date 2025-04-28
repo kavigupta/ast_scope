@@ -1,13 +1,13 @@
 import ast
 
-from .scope import GlobalScope, ErrorScope, FunctionScope, ClassScope
 from .annotator import (
-    IntermediateGlobalScope,
-    IntermediateFunctionScope,
     IntermediateClassScope,
+    IntermediateFunctionScope,
+    IntermediateGlobalScope,
     visit_all,
 )
 from .group_similar_constructs import GroupSimilarConstructsVisitor
+from .scope import ClassScope, ErrorScope, FunctionScope, GlobalScope
 
 
 class PullScopes(GroupSimilarConstructsVisitor):

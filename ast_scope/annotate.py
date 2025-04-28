@@ -1,8 +1,9 @@
 from ast_scope.scope import FunctionScope
+
 from .annotator import AnnotateScope, IntermediateGlobalScope
+from .graph import DiGraph
 from .pull_scope import PullScopes
 from .utils import get_all_nodes, get_name
-from .graph import DiGraph
 
 
 class ScopeInfo:

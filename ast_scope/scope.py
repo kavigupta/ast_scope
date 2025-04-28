@@ -1,6 +1,7 @@
-import ast
-import attr
 import abc
+import ast
+
+import attr
 
 from .annotator import name_of_alias
 
