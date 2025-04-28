@@ -3,6 +3,7 @@ import ast
 
 class GroupSimilarConstructsVisitor(ast.NodeVisitor):
     def visit_function_def(self, func_node, is_async):
+        del is_async
         return self.generic_visit(func_node)
 
     def visit_FunctionDef(self, func_node):
@@ -12,6 +13,7 @@ class GroupSimilarConstructsVisitor(ast.NodeVisitor):
         return self.visit_function_def(func_node, is_async=True)
 
     def visit_comprehension_generic(self, targets, comprehensions, node):
+        del targets, comprehensions
         return self.generic_visit(node)
 
     def visit_DictComp(self, comp_node):

@@ -23,6 +23,8 @@ class TypeAnnotationTest(DisplayAnnotatedTestCase):
         scope_info = ast_scope.annotate(ast.parse(remove_directives(annotated_code)))
 
         self.assertEqual(
+            # This is a hack to get the adjacency list from the static dependency graph
+            # pylint: disable=protected-access
             scope_info.static_dependency_graph._DiGraph__adjacency_list,
             {
                 "B": set(),

@@ -23,15 +23,13 @@ def get_name(node):
         name = ""
         pos_info_node = node.target
     else:
-        raise RuntimeError("Unsupported node type: {node}".format(node=node))
+        raise RuntimeError(f"Unsupported node type: {node}")
     return name, pos_info_node
 
 
 def description_of_node(node):
     name, pos = get_name(node)
-    return "{name}@{lineno}:{col_offset}".format(
-        name=name, lineno=pos.lineno, col_offset=pos.col_offset
-    )
+    return f"{name}@{pos.lineno}:{pos.col_offset}"
 
 
 def description_of_scope(scope):
@@ -43,12 +41,14 @@ def description_of_scope(scope):
         return "~" + description_of_node(scope.function_node)
     if isinstance(scope, ClassScope):
         return "-" + description_of_node(scope.class_node)
-    raise RuntimeError("Unsupported node type: {scope}".format(scope=scope))
+    raise RuntimeError(f"Unsupported node type: {scope}")
 
 
 def display_annotated(code, class_binds_near):
     lines = [list(x) for x in code.split("\n")]
     tree = ast.parse(code)
+    # should probably expose this but whatever.
+    # pylint: disable=protected-access
     mapping = annotate(tree, class_binds_near)._node_to_containing_scope
     for node, scope in mapping.items():
         if not hasattr(node, "lineno"):
@@ -136,7 +136,9 @@ class DisplayAnnotatedTestCase(unittest.TestCase):
             code = remove_directives(annotated_code)
 
         scope_info = annotate(ast.parse(code), class_binds_near)
-        scope_info.static_dependency_graph  # just check for errors
+        _ = scope_info.static_dependency_graph  # just check for errors
+        # Checking some of the internals
+        # pylint: disable=protected-access
         self._check_nodes(
             scope_info._node_to_containing_scope,
             scope_info._global_scope,
