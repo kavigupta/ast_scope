@@ -1,1 +1,2 @@
-from .annotate import annotate
+from .annotate import ScopeInfo, annotate
+from .scope import Scope
