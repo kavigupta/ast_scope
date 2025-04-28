@@ -1,5 +1,5 @@
-import ast
 import abc
+import ast
 
 from .group_similar_constructs import GroupSimilarConstructsVisitor
 from .utils import name_of_alias

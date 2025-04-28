@@ -1,5 +1,5 @@
-
 from .utils import DisplayAnnotatedTestCase, from_version
+
 
 class DifferentArgumentTypes(DisplayAnnotatedTestCase):
     def test_multiple_arguments(self):
@@ -9,6 +9,7 @@ class DifferentArgumentTypes(DisplayAnnotatedTestCase):
                 pass
             """
         )
+
     def test_keyword_only_arguments(self):
         self.assertAnnotationWorks(
             """
@@ -16,6 +17,7 @@ class DifferentArgumentTypes(DisplayAnnotatedTestCase):
                 pass
             """
         )
+
     @from_version(3, 8)
     def test_positional_only_arguments(self):
         self.assertAnnotationWorks(
@@ -24,6 +26,7 @@ class DifferentArgumentTypes(DisplayAnnotatedTestCase):
                 pass
             """
         )
+
     def test_keyword_arguments(self):
         self.assertAnnotationWorks(
             """
@@ -31,6 +34,7 @@ class DifferentArgumentTypes(DisplayAnnotatedTestCase):
                 pass
             """
         )
+
     def test_star_args(self):
         self.assertAnnotationWorks(
             """
@@ -38,6 +42,7 @@ class DifferentArgumentTypes(DisplayAnnotatedTestCase):
                 pass
             """
         )
+
     def test_starstar_kwargs(self):
         self.assertAnnotationWorks(
             """
@@ -55,6 +60,7 @@ class DefaultArguments(DisplayAnnotatedTestCase):
                 pass
             """
         )
+
     def test_complex_expression_default(self):
         self.assertAnnotationWorks(
             """
@@ -62,6 +68,7 @@ class DefaultArguments(DisplayAnnotatedTestCase):
                 pass
             """
         )
+
     def test_type(self):
         self.assertAnnotationWorks(
             """
@@ -69,6 +76,7 @@ class DefaultArguments(DisplayAnnotatedTestCase):
                 pass
             """
         )
+
     def test_typing(self):
         self.assertAnnotationWorks(
             """
@@ -76,6 +84,7 @@ class DefaultArguments(DisplayAnnotatedTestCase):
                 pass
             """
         )
+
     def test_inherits_proper_parent(self):
         self.assertAnnotationWorks(
             """

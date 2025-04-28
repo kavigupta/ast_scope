@@ -1,5 +1,6 @@
 from .utils import DisplayAnnotatedTestCase
 
+
 class TestClassDefault(DisplayAnnotatedTestCase):
     def testEmptyGraph(self):
         self.assertGraphWorks(
@@ -7,8 +8,9 @@ class TestClassDefault(DisplayAnnotatedTestCase):
             2 + 10
             """,
             vertices=[],
-            edges=[]
+            edges=[],
         )
+
     def testJustVariables(self):
         self.assertGraphWorks(
             """
@@ -16,8 +18,9 @@ class TestClassDefault(DisplayAnnotatedTestCase):
             a, b = c, x
             """,
             vertices=["x", "y", "a", "b", "c"],
-            edges=[]
+            edges=[],
         )
+
     def testFunctionWithNoGlobals(self):
         self.assertGraphWorks(
             """
@@ -25,8 +28,9 @@ class TestClassDefault(DisplayAnnotatedTestCase):
                 return x ** x
             """,
             vertices=["f"],
-            edges=[]
+            edges=[],
         )
+
     def testRecursiveFunction(self):
         self.assertGraphWorks(
             """
@@ -34,8 +38,9 @@ class TestClassDefault(DisplayAnnotatedTestCase):
                 return f(x)
             """,
             vertices=["f"],
-            edges=[("f", "f")]
+            edges=[("f", "f")],
         )
+
     def testGraphDirection(self):
         self.assertGraphWorks(
             """
@@ -45,8 +50,9 @@ class TestClassDefault(DisplayAnnotatedTestCase):
                 return x ** 2
             """,
             vertices=["f", "g"],
-            edges=[("f", "g")]
+            edges=[("f", "g")],
         )
+
     def testRefersToVariables(self):
         self.assertGraphWorks(
             """
@@ -56,8 +62,9 @@ class TestClassDefault(DisplayAnnotatedTestCase):
                 return x ** 2 + y
             """,
             vertices=["f", "g", "x", "y"],
-            edges=[("f", "g"), ("f", "y"), ("g", "x")]
+            edges=[("f", "g"), ("f", "y"), ("g", "x")],
         )
+
     def testRefersToImportStatements(self):
         self.assertGraphWorks(
             """
@@ -66,8 +73,9 @@ class TestClassDefault(DisplayAnnotatedTestCase):
                 import os
             """,
             vertices=["f", "os"],
-            edges=[("f", "os")]
+            edges=[("f", "os")],
         )
+
     def testLocalFunctionsDontGetNodes(self):
         self.assertGraphWorks(
             """
@@ -76,8 +84,9 @@ class TestClassDefault(DisplayAnnotatedTestCase):
                     pass
             """,
             vertices=["f"],
-            edges=[]
+            edges=[],
         )
+
     def testReferencesToClasses(self):
         self.assertGraphWorks(
             """
@@ -90,8 +99,9 @@ class TestClassDefault(DisplayAnnotatedTestCase):
                 return 2
             """,
             vertices=["X", "g", "h"],
-            edges=[("X", "h"), ("g", "X")]
+            edges=[("X", "h"), ("g", "X")],
         )
+
     def testReferenceToImport(self):
         self.assertGraphWorks(
             """
@@ -102,5 +112,5 @@ class TestClassDefault(DisplayAnnotatedTestCase):
                 return os.system("rm -r hi")
             """,
             vertices=["os", "g", "h", "X"],
-            edges=[("g", "X"), ("h", "os")]
+            edges=[("g", "X"), ("h", "os")],
         )

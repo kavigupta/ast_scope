@@ -1,5 +1,6 @@
 from .utils import DisplayAnnotatedTestCase, from_version, pre_version
 
+
 class FunctionFrameTest(DisplayAnnotatedTestCase):
     def test_no_parameter_function(self):
         self.assertAnnotationWorks(
@@ -9,6 +10,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 {~f@1:0}y = 3
             """
         )
+
     def test_global_statement(self):
         self.assertAnnotationWorks(
             """
@@ -19,6 +21,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 {~f@1:0}z = 4
             """
         )
+
     def test_inherits(self):
         self.assertAnnotationWorks(
             """
@@ -28,6 +31,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 return {~f@2:0}x + {g}y
             """
         )
+
     def test_self_reference(self):
         self.assertAnnotationWorks(
             """
@@ -36,6 +40,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 return {g}f, {~f@1:0}x
             """
         )
+
     def test_parameters(self):
         self.assertAnnotationWorks(
             """
@@ -43,6 +48,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 pass
             """
         )
+
     @from_version(3, 7)
     def test_async_parameters_new(self):
         self.assertAnnotationWorks(
@@ -51,6 +57,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 pass
             """
         )
+
     @pre_version(3, 7)
     def test_async_parameters_old(self):
         self.assertAnnotationWorks(
@@ -59,6 +66,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 pass
             """
         )
+
     def test_nested_function(self):
         self.assertAnnotationWorks(
             """
@@ -68,6 +76,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
             {g}t = {g}x = {g}y = {g}z = 1
             """
         )
+
     def test_set_after_get(self):
         self.assertAnnotationWorks(
             """
@@ -77,6 +86,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 {~f@2:0}x = 2
             """
         )
+
     def test_not_found_to_be_global(self):
         self.assertAnnotationWorks(
             """
@@ -84,6 +94,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                 {g}x
             """
         )
+
     @pre_version(3, 8)
     def test_decorator_top_level_old(self):
         self.assertAnnotationWorks(
@@ -95,6 +106,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                     pass
             """
         )
+
     @from_version(3, 8)
     def test_decorator_top_level_new(self):
         self.assertAnnotationWorks(
@@ -106,6 +118,7 @@ class FunctionFrameTest(DisplayAnnotatedTestCase):
                     pass
             """
         )
+
     def test_def_is_assign(self):
         self.assertAnnotationWorks(
             """
