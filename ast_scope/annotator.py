@@ -1,6 +1,7 @@
 import abc
 import ast
-from typing import Iterable, Self
+from typing import Iterable
+from typing_extensions import Self
 
 from .group_similar_constructs import GroupSimilarConstructsVisitor
 from .utils import compute_class_fields, name_of_alias
@@ -41,7 +42,6 @@ class IntermediateScope(abc.ABC):
         """
         Finds the actual frame containing the variable name, or None if no frame exists
         """
-        pass
 
 
 class IntermediateGlobalScope(IntermediateScope):
@@ -135,12 +135,15 @@ class GrabVariable(ast.NodeVisitor):
         self.scope.modify(self.variable.id)
 
     def visit_Load(self, node: ast.Load):
+        del node
         self.load()
 
     def visit_Store(self, node: ast.Store):
+        del node
         self.modify()
 
     def visit_Del(self, node: ast.Del):
+        del node
         self.modify()
 
     def visit_AugLoad(self, node: ast.AugLoad):

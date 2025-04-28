@@ -12,7 +12,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/kavigupta/ast_scope",
-    packages=setuptools.find_packages('ast_scope'),
+    packages=setuptools.find_packages("ast_scope"),
     classifiers=[
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
@@ -20,5 +20,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.9",
-    install_requires=["attrs>=19.3.0"],
+    install_requires=["attrs>=19.3.0", "typing-extensions>=4.13.2"],
 )
