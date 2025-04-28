@@ -1,11 +1,6 @@
-import ast
+from ast_scope.utils import compute_class_fields
 
-from .annotator import (
-    IntermediateClassScope,
-    IntermediateFunctionScope,
-    IntermediateGlobalScope,
-    visit_all,
-)
+from .annotator import IntermediateGlobalScope, visit_all
 from .group_similar_constructs import GroupSimilarConstructsVisitor
 from .scope import ClassScope, ErrorScope, FunctionScope, GlobalScope
 
@@ -48,15 +43,19 @@ class PullScopes(GroupSimilarConstructsVisitor):
         scope.add_import(node)
         super().generic_visit(node)
 
-    def visit_function_def(self, node, is_async):
+    def visit_function_def(self, func_node, is_async):
         del is_async
-        scope = self.pull_scope(node)
-        if node not in self.node_to_corresponding_scope:
-            self.node_to_corresponding_scope[node] = FunctionScope(node, scope)
+        scope = self.pull_scope(func_node)
+        if func_node not in self.node_to_corresponding_scope:
+            self.node_to_corresponding_scope[func_node] = FunctionScope(
+                func_node, scope
+            )
         scope.add_function(
-            node, self.node_to_corresponding_scope[node], include_as_variable=True
+            func_node,
+            self.node_to_corresponding_scope[func_node],
+            include_as_variable=True,
         )
-        super().generic_visit(node)
+        super().generic_visit(func_node)
 
     def visit_Lambda(self, node):
         scope = self.pull_scope(node, include_as_variable=False)
@@ -90,13 +89,7 @@ class PullScopes(GroupSimilarConstructsVisitor):
         scope = self.pull_scope(node)
         if node not in self.node_to_corresponding_scope:
             self.node_to_corresponding_scope[node] = ClassScope(node, scope)
-        assert node._fields == (
-            "name",
-            "bases",
-            "keywords",
-            "body",
-            "decorator_list",
-        )
-        visit_all(self, node.bases, node.keywords, node.decorator_list)
+        class_scope_fields, parent_scope_fields = compute_class_fields(node)
+        visit_all(self, *parent_scope_fields)
         scope.add_class(node, self.node_to_corresponding_scope[node])
-        visit_all(self, node.body)
+        visit_all(self, *class_scope_fields)

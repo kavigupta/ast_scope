@@ -2,7 +2,7 @@ import abc
 import ast
 
 from .group_similar_constructs import GroupSimilarConstructsVisitor
-from .utils import name_of_alias
+from .utils import compute_class_fields, name_of_alias
 
 
 class IntermediateScope(abc.ABC):
@@ -34,17 +34,10 @@ class IntermediateScope(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def find(self, name, global_acceptable=True):
+    def find(self, name, is_assignment, global_acceptable=True):
         """
         Finds the actual frame containing the variable name, or None if no frame exists
         """
-        pass
-
-    def true_parent(self):
-        parent = self.parent
-        while isinstance(parent, IntermediateClassScope):
-            parent = parent.parent
-        return parent
 
 
 class IntermediateGlobalScope(IntermediateScope):
@@ -57,11 +50,22 @@ class IntermediateGlobalScope(IntermediateScope):
         return self
 
 
-class IntermediateFunctionScope(IntermediateScope):
-    def __init__(self, node, parent):
+class IntermediateScopeWithParent(IntermediateScope):
+    def __init__(self, parent):
         super().__init__()
-        self.node = node
         self.parent = parent
+
+    def true_parent(self):
+        parent = self.parent
+        while isinstance(parent, IntermediateClassScope):
+            parent = parent.parent
+        return parent
+
+
+class IntermediateFunctionScope(IntermediateScopeWithParent):
+    def __init__(self, node, parent):
+        super().__init__(parent)
+        self.node = node
 
     def global_frame(self):
         return self.true_parent().global_frame()
@@ -76,11 +80,10 @@ class IntermediateFunctionScope(IntermediateScope):
         return self.true_parent().find(name, is_assignment, global_acceptable)
 
 
-class IntermediateClassScope(IntermediateScope):
+class IntermediateClassScope(IntermediateScopeWithParent):
     def __init__(self, node, parent, class_binds_near):
-        super().__init__()
+        super().__init__(parent)
         self.node = node
-        self.parent = parent
         self.class_binds_near = class_binds_near
 
     def global_frame(self):
@@ -106,10 +109,7 @@ class GrabVariable(ast.NodeVisitor):
         self.annotation_dict = annotation_dict
 
     def visit_generic(self, node):
-        raise RuntimeError("Unsupported node type: {node}".format(node=node))
-
-    def visit_Name(self, node):
-        super().visit_generic(node)
+        raise RuntimeError(f"Unsupported node type: {node}")
 
     def load(self):
         self.annotation_dict[self.variable] = self.variable.id, self.scope, False
@@ -203,8 +203,8 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         ProcessArguments(self, subscope).visit(func_node.args)
         visit_all(subscope, func_node.body)
 
-    def visit_comprehension_generic(self, targets, comprehensions, typ):
-        del typ
+    def visit_comprehension_generic(self, targets, comprehensions, node):
+        del node
         current_scope = self
         for comprehension in comprehensions:
             self.annotate_intermediate_scope(comprehension, "<comp>", None)
@@ -222,17 +222,9 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         subscope = self.create_subannotator(
             IntermediateClassScope(class_node, self.scope, self.class_binds_near)
         )
-        assert class_node._fields == (
-            "name",
-            "bases",
-            "keywords",
-            "body",
-            "decorator_list",
-        )
-        visit_all(subscope, class_node.body)
-        visit_all(
-            self, class_node.bases, class_node.keywords, class_node.decorator_list
-        )
+        class_scope_fields, parent_scope_fields = compute_class_fields(class_node)
+        visit_all(subscope, *class_scope_fields)
+        visit_all(self, *parent_scope_fields)
 
     def visit_Global(self, global_node):
         for name in global_node.names:

@@ -48,3 +48,24 @@ def name_of_alias(alias_node):
     if alias_node.asname is not None:
         return alias_node.asname
     return alias_node.name
+
+
+def compute_class_fields(class_node):
+    """
+    Compute the fields of a class node that are in the class scope, versus the parent scope.
+
+    :returns: (class_fields, parent_fields)
+        two lists containing the fields in the class scope and the parent scope, respectively.
+    """
+    assert class_node._fields == (
+        "name",
+        "bases",
+        "keywords",
+        "body",
+        "decorator_list",
+    )
+    return [class_node.body], [
+        class_node.bases,
+        class_node.keywords,
+        class_node.decorator_list,
+    ]
