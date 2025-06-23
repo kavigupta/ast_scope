@@ -190,9 +190,9 @@ class AnnotateScope(GroupSimilarConstructsVisitor):
         GrabVariable(self.scope, node, self.annotation_dict).generic_visit(node)
 
     def visit_ExceptHandler(self, node: ast.ExceptHandler):
-        if node.name is not None:
-            self.annotate_intermediate_scope(node, node.name, True)
-            self.scope.modify(node.name)
+        assert node.name
+        self.annotate_intermediate_scope(node, node.name, True)
+        self.scope.modify(node.name)
         visit_all(self, node.type, node.body)
 
     def visit_alias(self, node: ast.alias):
